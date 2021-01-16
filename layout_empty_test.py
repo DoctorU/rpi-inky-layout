@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from math import floor
 from Layout import Layout
 import unittest
 
@@ -56,13 +57,16 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual( (198,298), layer1.dimensions )
 
         layer1 = l.addLayer( )
-        self.assertEqual( (198, int(int(300-3)/2) ), layer1.dimensions )
+        self.assertEqual( (198,147 ), layer1.dimensions )
 
         layer1 = l.addLayer( )
-        self.assertEqual( (198, int(int(300-4)/3) ), layer1.dimensions )
+        self.assertEqual( (198,96 ), layer1.dimensions )
 
         layer1 = l.addLayer( )
-        self.assertEqual( (198, int(int(300-5)/4) ), layer1.dimensions )
+        self.assertEqual( (198,70), layer1.dimensions )
+
+        layer1 = l.addLayer( )
+        self.assertEqual( (198,54), layer1.dimensions )
 
 
 
@@ -72,13 +76,16 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual( (198,298), layer1.dimensions )
 
         layer1 = l.addLayer( )
-        self.assertEqual( (int(int(200-3)/2), 298), layer1.dimensions )
+        self.assertEqual( (97, 298), layer1.dimensions )
 
         layer1 = l.addLayer( )
-        self.assertEqual( (int(int(200-4)/3), 298), layer1.dimensions )
+        self.assertEqual( (62, 298), layer1.dimensions )
 
         layer1 = l.addLayer( )
-        self.assertEqual( (int(int(200-5)/4), 298), layer1.dimensions )
+        self.assertEqual( (45, 298), layer1.dimensions )
+
+        layer1 = l.addLayer( )
+        self.assertEqual( (34, 298), layer1.dimensions )
 
 
 if __name__ == '__main__':

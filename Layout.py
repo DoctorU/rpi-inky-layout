@@ -1,4 +1,5 @@
 from PIL import Image, ImageDraw
+from math import floor
 
 class Layout:
 
@@ -58,15 +59,17 @@ class Layout:
             if self._packingMode == 'h':
                 bordersW = (childCount-1+2) * self.border
                 bordersH =  2 * self.border
-                newChildW = int(self.dimensions[0]/childCount) - bordersW
-                newChildH = int(self.dimensions[1]) - bordersH
+                newChildW = floor(self.dimensions[0]/childCount) - bordersW
+                newChildH = self.dimensions[1] - bordersH
 
             if self._packingMode == 'v':
                 bordersW =  2 * self.border
                 bordersH = (childCount-1+2) * self.border
-                newChildW = int(self.dimensions[0]) - bordersW
-                newChildH = int(self.dimensions[1]/childCount) - bordersH
-
+                newChildW = self.dimensions[0] - bordersW
+                newChildH = floor(self.dimensions[1]/childCount) - bordersH
+                newdim = (newChildW, newChildH)
+                
+            print(childCount, self._packingMode, bordersW, bordersH, newChildW, newChildH)
             newChildDims = [(child.resize((newChildW, newChildH)) ) for child in self._children]
 
             
