@@ -11,44 +11,44 @@ class TestStringMethods(unittest.TestCase):
         l = Layout( (200,100) )
         self.assertEqual( (200,100), l.dimensions )
         filename = "test1.png"
-        l.get_draw().text( (0,50), filename)
+        l.get_ImageDraw().text( (0,50), filename)
         self.writeToFile(l, filename)
-        l.get_draw()
+        l.get_ImageDraw()
 
     def testAdd2ChildrenHorizontalPacking(self):
         l = Layout( (200,100), 'h')
-        l.get_draw().text( (0,50), "main layout 1")
+        l.get_ImageDraw().text( (0,50), "main layout 1")
         layer1 = l.addLayer( )
-        layer1.get_draw().text( (0,50), "layer 1-1")
+        layer1.get_ImageDraw().text( (0,50), "layer 1-1")
         
         self.assertEqual( (200,100), layer1.dimensions )
         self.writeToFile(l, 'test2.png')
         with self.assertRaises(Exception):
-            l.get_draw()
+            l.get_ImageDraw()
 
         layer2 = l.addLayer()
-        layer2.get_draw().text( (0,50), "layer 1-2")
+        layer2.get_ImageDraw().text( (0,50), "layer 1-2")
         self.assertEqual( (100,100), layer1.dimensions )
         self.assertEqual( (100,100), layer2.dimensions )
         self.writeToFile(l, 'test3.png')
         with self.assertRaises(Exception):
-            l.get_draw()
+            l.get_ImageDraw()
 
     def testAdd2ChildrenVerticalPacking(self):
         l = Layout( (200,100), 'v')
-        l.get_draw().text( (0,50), "main layout 2")
+        l.get_ImageDraw().text( (0,50), "main layout 2")
         layer1 = l.addLayer( )
-        layer1.get_draw().text( (0,50), "layer 2-1")
+        layer1.get_ImageDraw().text( (0,50), "layer 2-1")
         self.assertEqual( (200,100), layer1.dimensions )
         with self.assertRaises(Exception):
-            l.get_draw()
+            l.get_ImageDraw()
 
         layer2 = l.addLayer()
-        layer2.get_draw().text( (0,50), "layer 1-2")
+        layer2.get_ImageDraw().text( (0,50), "layer 1-2")
         self.assertEqual( (200,50), layer1.dimensions )
         self.assertEqual( (200,50), layer2.dimensions )
         with self.assertRaises(Exception):
-            l.get_draw()
+            l.get_ImageDraw()
             
     def testAddChildrenPackedVWithBorderEnabled(self):
         l = Layout( (200,300), 'v', 1 )

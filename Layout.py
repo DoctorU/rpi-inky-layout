@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw
 class Layout:
 
     DEFAULT_PALETTE = (255, 255, 255, 0, 0, 0, 255, 0, 0) + (0, 0, 0) * 252
-    def __init__(self, dimensions=(250,122), packingMode='h', border=0, rotation=0):
+    def __init__(self, dimensions=(250,122), packingMode='h', border=0, rotationMode=0):
         self.dimensions = dimensions 
         self._packingMode = packingMode
         self.border = border
