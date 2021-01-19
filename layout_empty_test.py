@@ -49,8 +49,8 @@ class TestLayout(unittest.TestCase):
         draw.text( (2,50), "layer 1-2", 2)
         layer2.setImage(img)
 
-        self.assertEqual( (94, 96), layer1.size )
-        self.assertEqual( (94, 96), layer2.size )
+        self.assertEqual( (97, 96), layer1.size )
+        self.assertEqual( (97, 96), layer2.size )
         layer2.write( 'test3.png')
 
     def testAdd2ChildrenVerticalPacking(self):
@@ -69,16 +69,16 @@ class TestLayout(unittest.TestCase):
         self.assertEqual( (198,298), layer1.size )
 
         layer1 = l.addLayer( )
-        self.assertEqual( (198,147 ), layer1.size )
+        self.assertEqual( (198,148 ), layer1.size )
 
         layer1 = l.addLayer( )
-        self.assertEqual( (198,96 ), layer1.size )
+        self.assertEqual( (198,99 ), layer1.size )
 
         layer1 = l.addLayer( )
-        self.assertEqual( (198,70), layer1.size )
+        self.assertEqual( (198,74), layer1.size )
 
         layer1 = l.addLayer( )
-        self.assertEqual( (198,54), layer1.size )
+        self.assertEqual( (198,59), layer1.size )
 
 
 
@@ -88,25 +88,25 @@ class TestLayout(unittest.TestCase):
         self.assertEqual( (198,298), layer1.size )
 
         layer1 = l.addLayer( )
-        self.assertEqual( (97, 298), layer1.size )
+        self.assertEqual( (98, 298), layer1.size )
 
         layer1 = l.addLayer( )
-        self.assertEqual( (63, 298), layer1.size )
+        self.assertEqual( (65, 298), layer1.size )
 
         layer1 = l.addLayer( )
-        self.assertEqual( (45, 298), layer1.size )
+        self.assertEqual( (49, 298), layer1.size )
 
         layer1 = l.addLayer( )
-        self.assertEqual( (34, 298), layer1.size )
+        self.assertEqual( (39, 298), layer1.size )
 
         layer1 = l.addLayer()
-        self.assertEqual( (26, 298), layer1.size )
+        self.assertEqual( (32, 298), layer1.size )
 
         layer1 = l.addLayer()
-        self.assertEqual( (21, 298), layer1.size )
+        self.assertEqual( (27, 298), layer1.size )
 
         layer1 = l.addLayer()
-        self.assertEqual( (16, 298), layer1.size )
+        self.assertEqual( (24, 298), layer1.size )
 
 
     def testTestGenerating2Layers(self):
