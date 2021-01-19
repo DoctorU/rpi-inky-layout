@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw, ImageChops
+from PIL import Image, ImageDraw
 from math import floor
 from random import randint
 import numpy
