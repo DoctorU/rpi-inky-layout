@@ -75,8 +75,16 @@ class Layout:
                 size = tuple(reversed(size))
 #
             childMid = (size[0]/childCount, size[1])
+            print(childMid)
             childMid = tuple(dim/2 for dim in childMid)
-            size = (((childMid[0]*2)-(borderWidth*(childCount+1))), ((childMid[1]-borderWidth)*2))
+            print(childMid)
+            border0 = borderWidth*(childCount + 1)/childCount
+            border1 = borderWidth*2
+            size0 = childMid[0]*2
+            size1 = childMid[1]*2
+            print (border0, border1, size0, size1)
+            size = (size0 - border0, size1 - border1)
+            #size = (((childMid[0]*2)-(borderWidth*(childCount+1))), ((childMid[1]-borderWidth)*2))
             size = tuple(round(dim) for dim in size)
 
             if self.packingMode == 'v':
@@ -89,8 +97,8 @@ class Layout:
                 " size:", size)
 
             print("gonna resize", childCount, self.packingMode,
-            "\n border:", borderWidth,
-            " child new dimension: ", size)
+            " border:", borderWidth,
+            " child new size: ", size)
             [child.resize(size) for child in self._children]
             [child._setMiddle(childMid) for child in self._children]
 
@@ -129,11 +137,13 @@ class Layout:
         size = child.size
         tl = child.topleft
         print("child:{c}".format(c=child))
-        if self.packingMode == 'h':
+        if self.packingMode == 'v':
             size = tuple(reversed(size))
         # SOMETHING IS WRONG HERE!
-        childPos = ( self.borderWidth, self.borderWidth * (index+1) + (size[1] * index))
-        if self.packingMode == 'h':
+        borderOffset = self.borderWidth*(index+1)
+        tlOffset0 = size[0]*index
+        childPos = (borderOffset + tlOffset0,  self.borderWidth)
+        if self.packingMode == 'v':
             childPos = tuple(reversed(childPos))
         print ("index:{i}, size:{s}, pos:{pos}".format(i=index, s=size, pos=childPos))
 

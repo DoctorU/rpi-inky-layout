@@ -5,7 +5,7 @@ from random import randint
 import unittest
 from PIL import Image, ImageDraw
 
-class TestStringMethods(unittest.TestCase):
+class TestLayout(unittest.TestCase):
 
     def writeToFile(self, layout, filename):
         layout.write( filename )
@@ -129,6 +129,9 @@ class TestStringMethods(unittest.TestCase):
         layer1.write("testgen-l1.png")
         layer2.write("testgen-l2.png")
         layer3.write("testgen-l3.png")
+        self.assertEqual( (129,94), layer1.size)
+        self.assertEqual( (129,94), layer2.size)
+        self.assertEqual( (129,94), layer3.size)
         print("/testTestGenerating2Layers")
 
     def testTreeOfLayers(self):
