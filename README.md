@@ -103,7 +103,7 @@ Use the sub-layouts to create images:
 
 If you're using the Inky, you can load the image up:
 
-    inky_mage = Image.open("hello-world.png")
+    inky_image = Image.open("hello-world.png")
     board.set_image(inky_image)
     
 And you're done!
