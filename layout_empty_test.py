@@ -122,8 +122,6 @@ class TestLayout(unittest.TestCase):
         self.addStuffToImage(layer2, 1)
         self.addStuffToImage(layer3, 2)
 
-        print (l, layer1, layer2, layer3)
-
         l.draw()
         l.write("testgen-l.png")
         layer1.write("testgen-l1.png")
@@ -132,7 +130,6 @@ class TestLayout(unittest.TestCase):
         self.assertEqual( (129,94), layer1.size)
         self.assertEqual( (129,94), layer2.size)
         self.assertEqual( (129,94), layer3.size)
-        print("/testTestGenerating2Layers")
 
     def testTreeOfLayers(self):
         l1 = Layout ( (400,200), 'h', border=5)
