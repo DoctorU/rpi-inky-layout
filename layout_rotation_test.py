@@ -20,25 +20,21 @@ class TestLayout(unittest.TestCase):
         self.assertEqual(2, Rotation.DOWN.value)
 
     def testCreateLayoutRotatedUp(self):
-        print("testing", Rotation.UP)
         l = Layout( (200,100), rotation=Rotation.UP)
         self.assertEqual((200,100), l.size)
         self.assertEqual(0, l.rotation_degrees)
 
     def testCreateLayoutRotatedLeft(self):
-        print ("testing", Rotation.LEFT)
         l = Layout( (200,100), rotation=Rotation.LEFT)
         self.assertEqual((100,200), l.size)
         self.assertEqual(270, l.rotation_degrees)
 
     def testCreateLayoutRotatedDown(self):
-        print ("testing", Rotation.DOWN)
         l = Layout( (200,100), rotation=Rotation.DOWN)
         self.assertEqual((200,100), l.size)
         self.assertEqual(180, l.rotation_degrees)
 
     def testCreateLayoutRotatedRight(self):
-        print ("testing", Rotation.RIGHT)
         l = Layout( (200,100), rotation=Rotation.RIGHT)
         self.assertEqual((100,200), l.size)
         self.assertEqual(90, l.rotation_degrees)
@@ -83,7 +79,6 @@ class TestLayout(unittest.TestCase):
         thalf = numpy.divide(tdiff, 2)
         tpos = tuple(thalf)
 
-        print("text pos", tpos, text)
         draw.text(tpos, text, 0x000000)
 
 if __name__ == '__main__':
