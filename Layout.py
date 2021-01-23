@@ -100,7 +100,7 @@ class Layout:
         size = numpy.subtract(size, border)
         # Move this to the resize function:
         size = tuple(round(dim) for dim in size)
-        print(self, "Resized to ", size)
+
         self.size = size
         if self._image:
             self._image = self._image.crop((0,0) + size)
@@ -112,8 +112,9 @@ class Layout:
         Iterates over all children of this Layout, and resizes them, and sets their positions
     """
     def _resizeChildren(self):
+
         childCount = len(self._children)
-        print("_resizeChildren: n =", childCount)
+
         if childCount > 0: # only update when there's children present
 
             size = self.size
@@ -122,14 +123,13 @@ class Layout:
 
             # Calculating values for each Child:
             packingCount = self._getChildrenPackingBiasTotal()
-            print("_resizeChildren: packingCount:", packingCount)
+
             slotMid = (size[0]/packingCount, size[1]) #This will be different for each child.!!!
             slotMid = tuple(dim/2 for dim in slotMid)
 
             # slotSize is the size of each slot.
             # multiple slotSize by layout's packingBias to get its true size
             slotSize = tuple(dim*2 for dim in slotMid)
-            print("_resizeChildren:slotMid, slotSize", slotMid, slotSize)
 
             # border doesn't change with packingBias
             borderWidth = self.borderWidth
@@ -148,7 +148,6 @@ class Layout:
     def _resizeAChild(self, child, index, slotSize, slotMid, border, packingCount):
 
         childStartSlot = self._getChildPackingBiasStart(index)
-        print("_resizeAChild", self, child, index, slotSize, slotMid, border, packingCount, childStartSlot)
 
         if(self.packingMode == 'v'):
             slotSize = self.tupleReversed(slotSize)
@@ -172,7 +171,6 @@ class Layout:
             childMid = self.tupleReversed(childMid)
             topleft = self.tupleReversed(topleft)
 
-        print ("_resizeAChild: result:", slotSize, border, childMid, topleft)
         child.resize(slotSize, border)
         # This is broken
         child.middle = childMid
@@ -223,7 +221,6 @@ class Layout:
         if not child._image:
             print ("WARNING: NO IMAGE SET ON THIS CHILD", child);
         else:
-            print("drawChildOnParent: at ", child.topleft)
             self._image.paste(child._image, child.topleft)
 
     def write(self, fp):

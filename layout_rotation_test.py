@@ -10,9 +10,9 @@ import numpy
 
 class TestLayoutRotation(unittest.TestCase):
 
-    def writeToFile(self, layout, filename):
-        layout.write(filename
-        )
+    @staticmethod
+    def writeImage( layout, filename):
+        layout.write('test/expected-images/' + filename)
 
     def testRotation(self):
         self.assertEqual(0, Rotation.UP.value)
@@ -74,7 +74,7 @@ class TestLayoutRotation(unittest.TestCase):
         img3 = Image.new("RGB", l3.size, 0x0000ff) # blue
         self.drawTextOnImage("l3", img3)
         l3.setImage(img3)
-        l.write("test/expected-images/test-rotated-{rot}-add-3-layers.png".format(rot=rotation.name))
+        self.writeImage(l, "test-rotated-{rot}-add-3-layers.png".format(rot=rotation.name))
 
     def drawTextOnImage(self, text, img):
         draw = ImageDraw.Draw(img)
