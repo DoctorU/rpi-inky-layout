@@ -8,10 +8,11 @@ from PIL import Image, ImageDraw
 
 import numpy
 
-class TestLayout(unittest.TestCase):
+class TestLayoutRotation(unittest.TestCase):
 
     def writeToFile(self, layout, filename):
-        layout.write( filename )
+        layout.write(filename
+        )
 
     def testRotation(self):
         self.assertEqual(0, Rotation.UP.value)
@@ -20,22 +21,22 @@ class TestLayout(unittest.TestCase):
         self.assertEqual(2, Rotation.DOWN.value)
 
     def testCreateLayoutRotatedUp(self):
-        l = Layout( (200,100), rotation=Rotation.UP)
+        l = Layout((200,100), rotation=Rotation.UP)
         self.assertEqual((200,100), l.size)
         self.assertEqual(0, l.rotation_degrees)
 
     def testCreateLayoutRotatedLeft(self):
-        l = Layout( (200,100), rotation=Rotation.LEFT)
+        l = Layout((200,100), rotation=Rotation.LEFT)
         self.assertEqual((100,200), l.size)
         self.assertEqual(270, l.rotation_degrees)
 
     def testCreateLayoutRotatedDown(self):
-        l = Layout( (200,100), rotation=Rotation.DOWN)
+        l = Layout((200,100), rotation=Rotation.DOWN)
         self.assertEqual((200,100), l.size)
         self.assertEqual(180, l.rotation_degrees)
 
     def testCreateLayoutRotatedRight(self):
-        l = Layout( (200,100), rotation=Rotation.RIGHT)
+        l = Layout((200,100), rotation=Rotation.RIGHT)
         self.assertEqual((100,200), l.size)
         self.assertEqual(90, l.rotation_degrees)
 
@@ -59,8 +60,11 @@ class TestLayout(unittest.TestCase):
         img = Image.new("RGB", l.size, 0x000)
         l.setImage(img)
         self.assertEqual((100,100), l1.size)
+        self.assertEqual((0,0), l1.topleft)
         self.assertEqual((100,100), l2.size)
+        self.assertEqual((0,100), l2.topleft)
         self.assertEqual((100,100), l3.size)
+        self.assertEqual((0,200), l3.topleft)
         img1 = Image.new("RGB", l1.size, 0xff0000) #red
         self.drawTextOnImage("l1", img1)
         l1.setImage(img1)
@@ -70,7 +74,7 @@ class TestLayout(unittest.TestCase):
         img3 = Image.new("RGB", l3.size, 0x0000ff) # blue
         self.drawTextOnImage("l3", img3)
         l3.setImage(img3)
-        l.write("test-rotated-{rot}-add-3-layers.png".format(rot=rotation.name))
+        l.write("test/expected-images/test-rotated-{rot}-add-3-layers.png".format(rot=rotation.name))
 
     def drawTextOnImage(self, text, img):
         draw = ImageDraw.Draw(img)

@@ -14,7 +14,7 @@ class TestLayout(unittest.TestCase):
         l = Layout( (200,100) )
         self.assertEqual( (200,100), l.size )
 
-        filename = 'testCreateLayout1.png'
+        filename = 'test/expected-images/testCreateLayout1.png'
         # Create the img
         img = self.NewImage(l)
         # draw on it
@@ -41,7 +41,7 @@ class TestLayout(unittest.TestCase):
         layer1.setImage(img)
 
         self.assertEqual( (196, 96), layer1.size )
-        layer1.write( 'test2.png')
+        layer1.write( 'test/expected-images/test2.png')
 
         layer2 = l.addLayer()
         img = self.NewImage(layer2)
@@ -51,7 +51,7 @@ class TestLayout(unittest.TestCase):
 
         self.assertEqual( (97, 96), layer1.size )
         self.assertEqual( (97, 96), layer2.size )
-        layer2.write( 'test3.png')
+        layer2.write( 'test/expected-images/test3.png')
 
     def testAdd2ChildrenVerticalPacking(self):
         l = Layout( (200,100), 'v')
@@ -123,10 +123,10 @@ class TestLayout(unittest.TestCase):
         self.addStuffToImage(layer3, 2)
 
         l.draw()
-        l.write("testgen-l.png")
-        layer1.write("testgen-l1.png")
-        layer2.write("testgen-l2.png")
-        layer3.write("testgen-l3.png")
+        l.write("test/expected-images/testgen-l.png")
+        layer1.write("test/expected-images/testgen-l1.png")
+        layer2.write("test/expected-images/testgen-l2.png")
+        layer3.write("test/expected-images/testgen-l3.png")
         self.assertEqual( (129,94), layer1.size)
         self.assertEqual( (129,94), layer2.size)
         self.assertEqual( (129,94), layer3.size)
@@ -142,9 +142,9 @@ class TestLayout(unittest.TestCase):
         self.addStuffToImage(l3)
 
         l1.draw()
-        l1.write("tree-l1.png")
-        l2.write("tree-l2.png")
-        l3.write("tree-l3.png")
+        l1.write("test/expected-images/tree-l1.png")
+        l2.write("test/expected-images/tree-l2.png")
+        l3.write("test/expected-images/tree-l3.png")
         self.assertEqual(l1.size, (400,200))
         self.assertEqual(l2.size, (390,190))
         self.assertEqual(l3.size, (384,184))

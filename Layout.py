@@ -18,7 +18,22 @@ class Layout:
 
     DEFAULT_PALETTE = (255, 255, 255, 0, 0, 0, 255, 0, 0) + (0, 0, 0) * 252
 
-    def __init__(self, size=(250,122), packingMode='h', border=(0,0), depth=0, rotation=Rotation.UP):
+    @staticmethod
+    def tupleReversed(tupleValue):
+        return tuple(reversed(tupleValue))
+
+    def __str__(self):
+        return "{id}/{depth}/{pb}/{children}:{tl}-{mid}-{dim}".format(
+            id = self._id,
+            depth = self._depth,
+            tl = self.topleft,
+            mid = self._middle,
+            dim = self.size,
+            pb = self.packingBias,
+            children = len(self._children)
+        )
+
+    def __init__(self, size=(250,122), packingMode='h', border=(0,0), depth=0, rotation=Rotation.UP, packingBias=1):
         """
             Construct a new Layer.
             :param:size: the size of the layer. default:(250,122) (the size of an Inky-pHAT).
@@ -30,12 +45,14 @@ class Layout:
             :param:rotation: the type of rotation. This modifies the way that images are drawn, so that
                 UP becomes the default top, DOWN would render upside down, and left and right similarly modify
                 the rendering.
+            :param:packingBias: the packing bias. If you add 2 layers: one with default bias, one with packingBias=3,
+                then the second layer will take up 3/4 of the width (3+1 = 4 = 100%)
 
         """
         self.rotation = rotation
-        print (self.rotation, self.rotation.value, self.rotation.value %2)
+        self.packingBias = packingBias
         if self.rotation.value % 2:
-            self.size = tuple(reversed(size)) # 1,3
+            self.size = self.tupleReversed(size) # 1,3
         else:
             self.size = size
         self.rotation_degrees = self.rotation.value * 90
@@ -64,71 +81,103 @@ class Layout:
             The image you set will be cropped to the Layer's size before being set on it.
         """
         self._image = image.crop((0,0)+self.size)
+        return self._image
 
-    def addLayer(self, border=1):
+    def addLayer(self, border=1, packingBias=1):
         """
             addLayer(border=1)
             Add a new layer to this Layer.
             :param:border: the same as the constructor's border property.
+            :param:packingBias: the same as the constructor's packingBias property.
         """
         #add a child Layer to the child list, then resize them all
-        childLayer = Layout(depth=self._depth + 1, border=border) # make it at least the same size
+        childLayer = Layout(depth=self._depth + 1, border=border, packingBias=packingBias) # make it at least the same size
         self._children.append(childLayer)
-        self._updateChildren()
+        self._resizeChildren()
         return childLayer
 
-    def resize(self, size):
+    def resize(self, size, border=(0,0)):
+        size = numpy.subtract(size, border)
+        # Move this to the resize function:
+        size = tuple(round(dim) for dim in size)
+        print(self, "Resized to ", size)
         self.size = size
         if self._image:
             self._image = self._image.crop((0,0) + size)
-        self._updateChildren()
-
-    def reposition(self, size, topleft=(0,0)):
-        self.topleft = topleft
-        self.resize(size)
-
-    def __str__(self):
-        return "{id}/{depth}:{tl}:{dim}:{mid}:{children}".format(
-            id = self._id,
-            depth = self._depth,
-            tl = self.topleft,
-            mid = self._middle,
-            dim = self.size,
-            children = len(self._children)
-        )
+        self._resizeChildren()
 
     """
-        _updateChildren
+        _resizeChildren
 
         Iterates over all children of this Layout, and resizes them, and sets their positions
     """
-    def _updateChildren(self):
+    def _resizeChildren(self):
         childCount = len(self._children)
+        print("_resizeChildren: n =", childCount)
         if childCount > 0: # only update when there's children present
-            size = self.size
-            borderWidth = self.borderWidth
-            if self.packingMode == 'v':
-                size = tuple(reversed(size))
-#
-            childMid = (size[0]/childCount, size[1])
-            childMid = tuple(dim/2 for dim in childMid)
 
+            size = self.size
+            if self.packingMode == 'v':
+                size = self.tupleReversed(size)
+
+            # Calculating values for each Child:
+            packingCount = self._getChildrenPackingBiasTotal()
+            print("_resizeChildren: packingCount:", packingCount)
+            slotMid = (size[0]/packingCount, size[1]) #This will be different for each child.!!!
+            slotMid = tuple(dim/2 for dim in slotMid)
+
+            # slotSize is the size of each slot.
+            # multiple slotSize by layout's packingBias to get its true size
+            slotSize = tuple(dim*2 for dim in slotMid)
+            print("_resizeChildren:slotMid, slotSize", slotMid, slotSize)
+
+            # border doesn't change with packingBias
+            borderWidth = self.borderWidth
             border0 = borderWidth*(childCount + 1)/childCount
             border1 = borderWidth*2
-            size0 = childMid[0]*2
-            size1 = childMid[1]*2
-
-            size = (size0 - border0, size1 - border1)
-            size = tuple(round(dim) for dim in size)
+            border = (border0, border1)
 
             if self.packingMode == 'v':
-                size = tuple(reversed(size))
+                slotSize = self.tupleReversed(slotSize)
+                border = self.tupleReversed(border)
 
-            [child.resize(size) for child in self._children]
-            [child._setMiddle(childMid) for child in self._children]
+            [(self._resizeAChild(child, index, slotSize, slotMid, border, packingCount))
+                for index, child in enumerate(self._children)
+            ]
 
-    def _setMiddle(self, middle):
-        self._middle = middle
+    def _resizeAChild(self, child, index, slotSize, slotMid, border, packingCount):
+
+        childStartSlot = self._getChildPackingBiasStart(index)
+        print("_resizeAChild", self, child, index, slotSize, slotMid, border, packingCount, childStartSlot)
+
+        if(self.packingMode == 'v'):
+            slotSize = self.tupleReversed(slotSize)
+
+        # calculate the new size
+        slotSize0, slotSize1 = slotSize
+        # calculate the new top-left (depends on final slot position)
+        borderOffset = self.borderWidth*(index+1)
+        tlOffset0 = slotSize0 * childStartSlot
+        topleft = (int(borderOffset + tlOffset0),  int(self.borderWidth))
+
+        #Calculate the new 0-dimension
+        slotSize0 = slotSize0 * child.packingBias
+        slotSize = (slotSize0, slotSize1)
+
+        #TODO: change these here
+        childMid = (slotMid[0] * child.packingBias, slotMid[1])
+
+        if(self.packingMode == 'v'):
+            slotSize = self.tupleReversed(slotSize)
+            childMid = self.tupleReversed(childMid)
+            topleft = self.tupleReversed(topleft)
+
+        print ("_resizeAChild: result:", slotSize, border, childMid, topleft)
+        child.resize(slotSize, border)
+        # This is broken
+        child.middle = childMid
+        child.topleft = topleft
+        #Errata: these values should be set already on resize.
 
     def draw(self):
         if not self._image:
@@ -153,29 +202,29 @@ class Layout:
                 xy = [ (0, self.size[1]/count*(i+1)), (self.size[0],self.size[1]/count*(i+1)) ]
                 draw.line(xy, c, w)
 
+    def _getChildrenPackingBiasTotal(self):
+        return self.getChildrenPackingBiasCount(self._children)
+
+    @staticmethod
+    def getChildrenPackingBiasCount(childrenList):
+        packingBias = [child.packingBias for child in childrenList]
+        packingCount = sum(packingBias)
+        return packingCount
+
+    def _getChildPackingBiasStart(self, index):
+        return self.getChildrenPackingBiasCount(self._children[0:index])
+
     def _drawChildren(self):
         [child._drawChildren() for child in self._children]
-        [self._drawChildOnParent(child,index) for index,child in enumerate(self._children)]
+        packingBiasCount = self._getChildrenPackingBiasTotal()
+        [self._drawChildOnParent(child, index) for index,child in enumerate(self._children)]
 
     def _drawChildOnParent(self, child, index):
-
-        # child contains the image to paste; index helps calculate the offset
-        size = child.size
-        tl = child.topleft
-
-        if self.packingMode == 'v':
-            size = tuple(reversed(size))
-
-        borderOffset = self.borderWidth*(index+1)
-        tlOffset0 = size[0]*index
-        childPos = (borderOffset + tlOffset0,  self.borderWidth)
-        if self.packingMode == 'v':
-            childPos = tuple(reversed(childPos))
-
         if not child._image:
             print ("WARNING: NO IMAGE SET ON THIS CHILD", child);
         else:
-            self._image.paste(child._image, childPos)
+            print("drawChildOnParent: at ", child.topleft)
+            self._image.paste(child._image, child.topleft)
 
     def write(self, fp):
         self.draw().save(fp)
