@@ -17,10 +17,14 @@ python-clean:
 	-rm -r library/LICENSE.txt
 	-rm -r library/*.egg-info/
 python-dist: library/build python-readme python-licence
-	cd library; python3 setup.py sdist
+	cd library; python3 setup.py sdist bdist_wheel
 
+# To get this to work, you had to set up ~/.pypirc with username __token__ and
+# your API token.
 python-testdeploy: python-dist
-		twine upload --repository-url https://test.pypi.org/legacy/ library/dist/*
+	python3 -m twine upload --repository testpypi library/dist/*
 
+# To get this to work, you had to set up ~/.pypirc with username __token__ and
+# your API token.
 python-deploy: python-dist
-		twine upload library/dist/*
+	python3 -m twine upload library/dist/*
