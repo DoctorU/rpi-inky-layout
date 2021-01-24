@@ -25,6 +25,7 @@ setuptools.setup(
     'Development Status :: 3 - Alpha',
     'Intended Audience :: Developers',
     'Topic :: Software Development :: Libraries :: Application Frameworks',
+    'Topic :: Software Development :: Libraries :: Python Modules',
     'Topic :: Multimedia :: Graphics :: Presentation',
     'License :: OSI Approved :: MIT License',
     'Programming Language :: Python :: 3',
