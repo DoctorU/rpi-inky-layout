@@ -24,7 +24,7 @@ setuptools.setup(
   classifiers=[
     'Development Status :: 3 - Alpha',
     'Intended Audience :: Developers',
-    'Topic :: Software Development :: Libraries :: Application Development',
+    'Topic :: Software Development :: Libraries :: Application Frameworks',
     'Topic :: Multimedia :: Graphics :: Presentation',
     'License :: OSI Approved :: MIT License',
     'Programming Language :: Python :: 3',
