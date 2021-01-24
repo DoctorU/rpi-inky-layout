@@ -1,3 +1,5 @@
 __pycache__
 library/dist/
 library/MANIFEST
+library/rpi_inky_layout.egg-info/
+library/test/expected-images/
