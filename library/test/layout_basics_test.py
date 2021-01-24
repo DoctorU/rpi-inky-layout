@@ -1,7 +1,8 @@
-from Layout import Layout
+from PIL import Image, ImageDraw
 from random import randint
 import unittest
-from PIL import Image, ImageDraw
+
+from rpi_inky_layout import Layout
 
 
 class TestLayoutBasics(unittest.TestCase):

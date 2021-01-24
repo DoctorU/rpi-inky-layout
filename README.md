@@ -119,7 +119,7 @@ Rotation parameter. It takes the values:
  * RIGHT - rotation by +90 degrees
  * DOWN - rotated 180 degrees (up side down)
 
-see under `test/expected-images/test-rotated*.png` for some examples.
+see under `library/test/expected-images/test-rotated*.png` for some examples.
 
 ### Packing Bias
 
