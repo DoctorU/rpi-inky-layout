@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-from Layout import Layout
-import unittest
 from PIL import Image, ImageDraw
+import unittest
+
+from rpi_inky_layout import Layout
 
 
 class TestLayoutPackingBias(unittest.TestCase):

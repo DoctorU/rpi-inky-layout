@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
-from Layout import Rotation
-from Layout import Layout
 from PIL import Image, ImageDraw
 import numpy
 import unittest
+
+from rpi_inky_layout import Layout, Rotation
 
 
 class TestLayoutRotation(unittest.TestCase):

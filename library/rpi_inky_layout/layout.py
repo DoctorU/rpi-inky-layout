@@ -1,15 +1,8 @@
-from enum import Enum, unique
 from PIL import Image, ImageDraw
 from random import randint
 import numpy
 
-
-@unique
-class Rotation(Enum):
-    UP = 0  # Normal
-    RIGHT = 1  # rotate left 90°
-    DOWN = 2  # rotate 180°
-    LEFT = 3  # rotate right 90°
+from .rotation import Rotation
 
 
 class Layout:

@@ -1,1 +1,6 @@
 __pycache__
+*api_token.txt
+library/dist/
+library/MANIFEST
+library/rpi_inky_layout.egg-info/
+library/test/expected-images/
