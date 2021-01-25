@@ -62,7 +62,7 @@ class Layout:
             imageMode: str
                 The image mode to use when creating a default image (when one
                 does not exist). Refer to
-                [Pillow image modes](https://pillow.readthedocs.io/en/latest/handbook/concepts.html#modes)
+                [Pillow image modes](https://pillow.readthedocs.io/en/latest/handbook/concepts.html#modes).
         """  # noqa: E501
         self.rotation = rotation
         self.packingBias = packingBias
