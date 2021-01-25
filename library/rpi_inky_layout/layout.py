@@ -59,7 +59,11 @@ class Layout:
                 The packing bias. If you add 2 layers: one with
                 default bias, one with packingBias=3, then the second layer
                 will take up 3/4 of the width (3+1 = 4 = 100%).
-        """
+            imageMode: str
+                The image mode to use when creating a default image (when one
+                does not exist). Refer to
+                [Pillow image modes](https://pillow.readthedocs.io/en/latest/handbook/concepts.html#modes)
+        """  # noqa: E501
         self.rotation = rotation
         self.packingBias = packingBias
         if self.rotation.value % 2:
