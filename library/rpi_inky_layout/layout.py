@@ -5,10 +5,12 @@ import numpy
 from .rotation import Rotation
 
 
+"""
+    Layout - a simple image layout manager for RPi Inky HATs.
+"""
+
+
 class Layout:
-    """
-        Layout - a simple image layout manager for RPi Inky HATs.
-    """
 
     DEFAULT_PALETTE = (255, 255, 255, 0, 0, 0, 255, 0, 0) + (0, 0, 0) * 252
 
@@ -29,24 +31,32 @@ class Layout:
 
     def __init__(
         self, size=(250, 122), packingMode='h', border=(0, 0),
-        depth=0, rotation=Rotation.UP, packingBias=1
+        depth=0, rotation=Rotation.UP, packingBias=1, imageMode="RGB"
     ):
         """
             Construct a new Layer.
-            :param:size: the size of the layer. default:(250,122)
-                (the size of an Inky-pHAT).
-            :param:packingMode: the packing mode, one of 'h' or 'v'.
-            :param:border: a border definition.
+
+            Parameters
+            ----------
+            size: tuple
+                A 2-tuple describing the size of the layer.
+                Default:(250,122), the size of an Inky-PHAT.
+            packingMode: str
+                The packing mode: one of 'h' or 'v'.
+            border: int|(0,0)
                 If an int, then the width, and the colour is assumed to be '2'.
                 If a 2-tuple, then the first part is the width, and the second
                 is the colour.
-            :param:depth: for tracking the tree hierarchy - for internal use
+            depth: int
+                for tracking the tree hierarchy - for internal use
                 only. Default:0.
-            :param:rotation: the type of rotation. This modifies the way that
+            rotation: Rotation
+                The type of rotation. This modifies the way that
                 images are drawn, so that UP becomes the default top, DOWN
                 would render upside down, and left and right similarly modify
                 the rendering.
-            :param:packingBias: the packing bias. If you add 2 layers: one with
+            packingBias: int
+                The packing bias. If you add 2 layers: one with
                 default bias, one with packingBias=3, then the second layer
                 will take up 3/4 of the width (3+1 = 4 = 100%).
         """
@@ -60,6 +70,7 @@ class Layout:
         self._middle = tuple(dim / 2 for dim in size)
         self.topleft = (0, 0)
         self.packingMode = packingMode
+        self.imageMode = imageMode
 
         if isinstance(border, int):
             self.borderWidth = border
@@ -76,7 +87,6 @@ class Layout:
 
     def setImage(self, image):
         """
-            setImage
             Set the image on this layer after you've drawn it.
             The image you set will be cropped to the Layer's size before being
             set on it.
@@ -84,23 +94,43 @@ class Layout:
         self._image = image.crop((0, 0) + self.size)
         return self._image
 
-    def addLayer(self, border=1, packingBias=1):
+    def addLayer(
+            self,
+            border=0,
+            packingBias=1,
+            packingMode='h',
+            rotation=Rotation.UP
+    ):
         """
-            addLayer(border=1)
             Add a new child layout to this layout as a layer.
-            :param:border: the same as the constructor's border property.
-            :param:packingBias: the same as the constructor's packingBias
-                property.
+
+            Parameters
+            ------
+            border: int | (int, colour)
+                the same as the constructor's border property.
+            packingBias: int
+                the same as the constructor's packingBias property.
         """
 
         childLayer = Layout(
             depth=self._depth + 1,
             border=border,
-            packingBias=packingBias)
+            packingBias=packingBias,
+            packingMode=packingMode,
+            rotation=rotation
+            )
 
         self._children.append(childLayer)
         self._resizeChildren()
         return childLayer
+
+    def addLayerFrom(self, proto):
+        self.addLayer(
+            border=proto.border,
+            packingBias=proto.packingBias,
+            packingMode=proto.packingMode,
+            rotation=proto.rotation
+        )
 
     def resize(self, size, border=(0, 0)):
         size = numpy.subtract(size, border)
@@ -110,12 +140,6 @@ class Layout:
             self._image = self._image.crop((0, 0) + size)
         self._resizeChildren()
 
-    """
-        _resizeChildren
-
-        Iterates over all children of this Layout, and resizes them, and
-        sets their positions
-    """
     def _resizeChildren(self):
 
         childCount = len(self._children)
@@ -191,7 +215,7 @@ class Layout:
 
     def draw(self):
         if not self._image:
-            self._image = Image.new("P", self.size, self._depth)
+            self._image = Image.new(self.imageMode, self.size, self._depth)
         self._drawChildren()
 
         # draw the border
@@ -245,10 +269,13 @@ class Layout:
         if not child._image:
             print("WARNING: NO IMAGE SET ON THIS CHILD", child)
         else:
-            self._image.paste(child._image, child.topleft)
+            if not self._image:
+                self._image = self.setImage(child._image.copy())
+            else:
+                self._image.paste(child._image, child.topleft)
 
     def write(self, fp):
-        self.draw().save(fp)
+        self.draw().convert(mode="RGB").save(fp)
         if self._children:
             [
                 child.write(fp.replace(".", "-{i}.".format(i=index)))
