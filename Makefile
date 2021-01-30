@@ -29,6 +29,7 @@ release-reset: release-precheck
 	git checkout main
 	git tag -d "v$(VERSION)"
 	git branch -d "release/$(VERSION)"
+	git restore release/build
 release: release-branch
 	echo "VERSION:$(VERSION)"
 	sed -e "s:\%GITVER\%:$(VERSION):" 'library/setup.py.template' > 'library/setup.py'
