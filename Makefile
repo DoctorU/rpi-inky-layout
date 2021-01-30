@@ -25,7 +25,7 @@ release-branch: release-newbuild
 	cat release/build
 	git branch -v
 	git tag "v$(VERSION)" -a -m"Release v$(VERSION) (`date +'%Y-%m-%d'`)"
-release-reset:
+release-reset: release-precheck
 	git checkout main
 	git tag -d "v$(VERSION)"
 	git branch -d "release/$(VERSION)"
