@@ -1,10 +1,8 @@
-VERSION_FILE=release/version
-VERSION=`cat $(VERSION_FILE)`
 BUILDVER_FILE=release/build
 
 .PHONY: python-newbuild
 library/lint:
-	cd library; flake8 . --show-statistics
+	cd library; flake8 . --statistics
 library/test: library/lint
 	cd library; python3 -m unittest discover -s test/ -p "layout_*_test.py"
 library/build: library/test
@@ -15,12 +13,14 @@ library/LICENSE.txt: LICENSE
 
 python-readme: library/README.md
 python-licence: library/LICENSE.txt
+release-precheck: library/test
+	test -n "$(VERSION)" || { echo "ERROR: VERSION undefined." && exit 1; }
+	echo "Preflight check passed. Proceeding..."
 git-pull:
 	git pull --all --prune
-release-newbuild: git-pull
+release-newbuild: git-pull release-precheck
 	cd release; ./increment-build.sh
 release-branch: release-newbuild
-	git pull --all --prune
 	git checkout -b "release/$(VERSION)"
 	cat release/build
 	git branch -v
