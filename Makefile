@@ -16,19 +16,19 @@ library/LICENSE.txt: LICENSE
 python-readme: library/README.md
 python-licence: library/LICENSE.txt
 git-pull:
-	git pull --all
+	git pull --all --prune
 release-newbuild: git-pull
 	cd release; ./increment-build.sh
-release-newversion-preflight: python-newbuild
-	git branch -v
-	cp $(VERSION_FILE) $(VERSION_FILE).old
-	echo "$(VERSION)" > $(VERSION_FILE);
-	git tag "v$(VERSION)" -a -m"Release v$(VERSION) (`date +'%Y-%m-%d'`)"
-	cd release; ./test-new-version.sh
-release-branch: release-newversion-preflight
+release-branch: release-newbuild
 	git pull --all --prune
-	#git checkout -b "release/$(VERSION)"
-
+	git checkout -b "release/$(VERSION)"
+	cat release/build
+	git branch -v
+	git tag "v$(VERSION)" -a -m"Release v$(VERSION) (`date +'%Y-%m-%d'`)"
+release-reset:
+	git checkout main
+	git tag -d "v$(VERSION)"
+	git branch -d "release/$(VERSION)"
 release: release-branch
 	echo "VERSION:$(VERSION)"
 	sed -e "s:\%GITVER\%:$(VERSION):" 'library/setup.py.template' > 'library/setup.py'
