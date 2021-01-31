@@ -1,7 +1,7 @@
 from os import path
 import setuptools
 
-VERSION = "v0.0.5"
+VERSION = "v0.0.6"
 DIST_FMT = "https://github.com/DoctorU/rpi-inky-layout/dist/{VERSION}.tar.gz"
 DIST_URL = DIST_FMT.format(VERSION=VERSION)
 
@@ -10,7 +10,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 setuptools.setup(
   name='rpi-inky-layout',
-  version='0.0.5',
+  version='0.0.6',
   license='MIT',
   description="A layout companion library for Pimoroni's Inky HATs",
   long_description=long_description,
@@ -21,6 +21,10 @@ setuptools.setup(
   download_url=DIST_URL,
   packages=setuptools.find_packages(),
   keywords=['Layout', 'Framework', 'Image', 'Inky', 'Pimoroni'],
+  install_requires=[
+    'numpy>=1.19.5',
+    'Pillow>=8.1.0'
+  ],
   classifiers=[
     'Development Status :: 3 - Alpha',
     'Intended Audience :: Developers',
