@@ -50,7 +50,7 @@ python-clean:
 	-rm -r library/README.md
 	-rm -r library/LICENSE.txt
 	-rm -r library/*.egg-info/
-python-dist: library/build python-readme python-licence python-version
+python-dist: python-readme python-licence python-version
 	cd library; python3 setup.py sdist bdist_wheel
 # To get this to work, you had to set up ~/.pypirc with username __token__ and
 # your API token.
