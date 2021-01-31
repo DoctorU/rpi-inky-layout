@@ -17,27 +17,33 @@ python-licence: library/LICENSE.txt
 git-pull:
 	git pull --all --prune
 
-release-precheck: library/test
-	git restore "library/test"
+release-precheck:
 	test -n "$(VERSION)" || { echo "ERROR: VERSION undefined." && exit 1; }
 	echo "Preflight check passed. Proceeding..."
-release-newbuild: git-pull release-precheck
-	cd release; ./increment-build.sh
-release-branch: release-newbuild
-	git checkout -b "release/$(VERSION)"
-	cat release/build
-	git branch -v
+
 release-reset: release-precheck
+	git restore 'library/setup.py' 'release/build'
+	git tag -d 'v$(VERSION)' && git push --delete origin 'v$(VERSION)'
+
+release-branch:
+	git stash
+	git fetch --all --tags
 	git checkout main
-	git tag -d "v$(VERSION)"
-	git branch -d "release/$(VERSION)"
-	git restore release/build
-release: release-branch
-	echo "VERSION:$(VERSION)"
+
+release-newbuild:
+	cd release; ./increment-build.sh
+	git add 'release/build'
+
+release-update-setup: release-newbuild
+	echo 'VERSION:$(VERSION)'
 	sed -e "s:\%GITVER\%:$(VERSION):" 'library/setup.py.template' > 'library/setup.py'
-	git add 'library/setup.py' 'release/build'
+	git add 'library/setup.py'
+
+release: library/test release-precheck release-branch release-update-setup
+	git restore "library/test"
 	git commit -m"Release $(VERSION)"
 	git tag "v$(VERSION)" -a -m"Release v$(VERSION) (`date +'%Y-%m-%d'`)"
+	git push origin 'v$(VERSION)'
 
 python-clean:
 	-rm -r library/dist
