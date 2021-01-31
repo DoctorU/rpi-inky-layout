@@ -21,6 +21,10 @@ setuptools.setup(
   download_url=DIST_URL,
   packages=setuptools.find_packages(),
   keywords=['Layout', 'Framework', 'Image', 'Inky', 'Pimoroni'],
+  install_requires=[
+    'numpy>=1.19.5',
+    'Pillow>=8.1.0'
+  ],
   classifiers=[
     'Development Status :: 3 - Alpha',
     'Intended Audience :: Developers',
