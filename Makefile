@@ -34,7 +34,7 @@ release-newbuild:
 	cd release; ./increment-build.sh
 	git add 'release/build'
 
-release-update-setup: release-newbuild
+release-update-setup: release-precheck release-newbuild
 	echo 'VERSION:$(VERSION)'
 	sed -e "s:\%GITVER\%:$(VERSION):" 'library/setup.py.template' > 'library/setup.py'
 	git add 'library/setup.py'
