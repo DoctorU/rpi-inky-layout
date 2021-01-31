@@ -44,6 +44,7 @@ release: library/test release-precheck release-branch release-update-setup
 	git commit -m"Release $(VERSION)"
 	git tag "v$(VERSION)" -a -m"Release v$(VERSION) (`date +'%Y-%m-%d'`)"
 	git push origin 'v$(VERSION)'
+	git push origin main
 
 python-clean:
 	-rm -r library/dist
