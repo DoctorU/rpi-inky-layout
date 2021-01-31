@@ -13,18 +13,20 @@ library/LICENSE.txt: LICENSE
 
 python-readme: library/README.md
 python-licence: library/LICENSE.txt
-release-precheck: library/test
-	test -n "$(VERSION)" || { echo "ERROR: VERSION undefined." && exit 1; }
-	echo "Preflight check passed. Proceeding..."
+
 git-pull:
 	git pull --all --prune
+
+release-precheck: library/test
+	git restore "library/test"
+	test -n "$(VERSION)" || { echo "ERROR: VERSION undefined." && exit 1; }
+	echo "Preflight check passed. Proceeding..."
 release-newbuild: git-pull release-precheck
 	cd release; ./increment-build.sh
 release-branch: release-newbuild
 	git checkout -b "release/$(VERSION)"
 	cat release/build
 	git branch -v
-	git tag "v$(VERSION)" -a -m"Release v$(VERSION) (`date +'%Y-%m-%d'`)"
 release-reset: release-precheck
 	git checkout main
 	git tag -d "v$(VERSION)"
@@ -33,24 +35,21 @@ release-reset: release-precheck
 release: release-branch
 	echo "VERSION:$(VERSION)"
 	sed -e "s:\%GITVER\%:$(VERSION):" 'library/setup.py.template' > 'library/setup.py'
-	echo git add 'library/setup.py' "$(VERSION_FILE)" "$(VERSION_FILE).old"
-	echo git commit -m"Release $(VERSION)"
-	echo git tag "v$(VERSION)" -a"Release v$(VERSION) (`date +'%Y-%m-%d'`)"
+	git add 'library/setup.py' 'release/build'
+	git commit -m"Release $(VERSION)"
+	git tag "v$(VERSION)" -a -m"Release v$(VERSION) (`date +'%Y-%m-%d'`)"
 
 python-clean:
 	-rm -r library/dist
 	-rm -r library/README.md
 	-rm -r library/LICENSE.txt
 	-rm -r library/*.egg-info/
-
 python-dist: library/build python-readme python-licence python-version
 	cd library; python3 setup.py sdist bdist_wheel
-
 # To get this to work, you had to set up ~/.pypirc with username __token__ and
 # your API token.
 python-testdeploy: python-dist
 	python3 -m twine upload --repository testpypi library/dist/*
-
 # To get this to work, you had to set up ~/.pypirc with username __token__ and
 # your API token.
 python-deploy: python-dist
