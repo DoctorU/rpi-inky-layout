@@ -21,7 +21,7 @@ git-pull:
 release-precheck:
 	echo "VERSION: ${VERSION}"
 	echo "RELEASE_FROM: ${RELEASE_FROM}"
-	test -z "${VERSION}" && echo "VERSION invalid" && exit 1
+	test -n "${VERSION}" || { echo "VERSION invalid" && exit 1; }
 
 release-reset: release-precheck
 	git restore 'library/setup.py' '.release/build'
