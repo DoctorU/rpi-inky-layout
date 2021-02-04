@@ -52,14 +52,34 @@ You can then do what you want with the file, e.g., load it onto an [Inky display
 
 Here's a detailed example.
 
+## Install
+
+Assuming you already have pip3 installed:
+
+    python3 -m pip install rpi-inky-layout
+
+And of course, later upgrade with:
+
+    python3 -m pip install --upgrade rpi-inky-layout
+
+Ready to use!
+
 
 ## Prerequisites
 
-You will definitely need some sort of image manipulation library, such as [pillow](https://pillow.readthedocs.io/en/stable/reference/index.html)
+Import the core classes from `rpi_inky_layout` package:
+
+    from rpi_inky_layout import Layout, Rotation
+
+You will also need some sort of image manipulation library, such as
+[pillow](https://pillow.readthedocs.io/en/stable/reference/index.html)
+(and `rpi-inky-layout` uses the `pillow` library internally anyway):
 
     from PIL import Image, ImageDraw
 
-And, since this is built initially for use with [Inky displays](https://github.com/pimoroni/inky), you should probably import that, too:
+Optionally, if you're using it with
+[Pimoroni's Inky display library](https://github.com/pimoroni/inky)
+(its original purpose), then you will probably want to import that, too:
 
     from inky.auto import auto
 
@@ -68,19 +88,19 @@ And, since this is built initially for use with [Inky displays](https://github.c
 
 Create the top-level `Layout`:
 
-    toplevel = Level( (400,100), packingMode='h', border=(1,2))
+    topLayout = Layout((400, 100), packingMode='h', border=(1, 2))
 
-Or, if you're using your inky:
+Or, if you're using your the `inky` library:
 
     board = auto()
-    toplevel = Level (board.resolution, 'h', (0,0) )
+    topLayout = Layout(board.resolution, 'h', (0, 0))
 
 
 Add as many new layers as you want:
 
-    sublayout1 = layout.addLayer()
-    sublayout2 = layout.addLayer()
-    sublayout3 = layout.AddLayer()
+    sublayout1 = topLayout.addLayer()
+    sublayout2 = topLayout.addLayer()
+    sublayout3 = topLayout.sddLayer()
     sublayout31 = sublayout3.addLayer()
     sublayout32 = sublayout3.addLayer()
 
@@ -98,8 +118,8 @@ Use the sub-layouts to create images:
     draw.text(tuple(s/2 for s in sublayout32.size), "World!",1)
     sublayout32.setImage(image32)
 
-    layout.draw()
-    layout.write("hello-world.png")
+    topLayout.draw()
+    topLayout.write("hello-world.png")
 
 If you're using the Inky, you can load the image up:
 
