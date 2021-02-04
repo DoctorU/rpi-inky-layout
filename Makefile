@@ -1,4 +1,5 @@
-BUILDVER_FILE=release/build
+BUILDVER_FILE=.release/build
+include .release/release_config
 
 .PHONY: python-newbuild
 library/lint:
@@ -18,12 +19,13 @@ git-pull:
 	git pull --all --prune
 
 release-precheck:
-	test -n "$(VERSION)" || { echo "ERROR: VERSION undefined." && exit 1; }
-	echo "Preflight check passed. Proceeding..."
+	echo "VERSION: ${VERSION}"
+	echo "RELEASE_FROM: ${RELEASE_FROM}"
+	test -z "${VERSION}" && echo "VERSION invalid" && exit 1
 
 release-reset: release-precheck
-	git restore 'library/setup.py' 'release/build'
-	git tag -d 'v$(VERSION)' && git push --delete origin 'v$(VERSION)'
+	git restore 'library/setup.py' '.release/build'
+	git tag -d 'v${VERSION}' && git push --delete origin 'v${VERSION}'
 
 release-branch:
 	git stash
@@ -31,19 +33,19 @@ release-branch:
 	git checkout main
 
 release-newbuild:
-	cd release; ./increment-build.sh
-	git add 'release/build'
+	cd .release; ./increment-build.sh
+	git add '.release/build'
 
 release-update-setup: release-precheck release-newbuild
-	echo 'VERSION:$(VERSION)'
-	sed -e "s:\%GITVER\%:$(VERSION):" 'library/setup.py.template' > 'library/setup.py'
+	echo "VERSION:${VERSION}"
+	sed -e "s:\%GITVER\%:${VERSION}:" 'library/setup.py.template' > 'library/setup.py'
 	git add 'library/setup.py'
 
 release: library/test release-precheck release-branch release-update-setup
 	git restore "library/test"
-	git commit -m"Release $(VERSION)"
-	git tag "v$(VERSION)" -a -m"Release v$(VERSION) (`date +'%Y-%m-%d'`)"
-	git push origin 'v$(VERSION)'
+	git commit -m"Release ${VERSION}"
+	git tag "v${VERSION}" -a -m"Release v${VERSION} (`date +'%Y-%m-%d'`)"
+	git push origin '${VERSION}'
 	git push origin main
 
 python-clean:
