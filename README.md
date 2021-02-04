@@ -5,6 +5,13 @@ Pimoroni Inky-pHAT into seperate drawable areas.
 
 You might find other uses for it - let me know if it's handy!
 
+## Repository Status
+
+![Upload Python Package](https://github.com/DoctorU/rpi-inky-layout/workflows/Upload%20Python%20Package/badge.svg)
+![Test Python package](https://github.com/DoctorU/rpi-inky-layout/workflows/Python%20package/badge.svg)
+
+## Outline process
+
 The outline process is:
 
 1. Use the `Layout` class to create a top-level Layout object.
