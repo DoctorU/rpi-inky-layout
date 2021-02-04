@@ -115,9 +115,6 @@ class TestLayoutBasics(unittest.TestCase):
 
         layout.draw()
         self.writeToFile(layout, "testgen-l.png")
-        self.writeToFile(layer1, "testgen-l1.png")
-        self.writeToFile(layer2, "testgen-l2.png")
-        self.writeToFile(layer3, "testgen-l3.png")
         self.assertEqual((129, 94), layer1.size)
         self.assertEqual((129, 94), layer2.size)
         self.assertEqual((129, 94), layer3.size)
@@ -132,10 +129,7 @@ class TestLayoutBasics(unittest.TestCase):
         l3 = l2.addLayer()
         self.addStuffToImage(l3)
 
-        l1.draw()
         self.writeToFile(l1, "tree-l1.png")
-        self.writeToFile(l2, "tree-l2.png")
-        self.writeToFile(l3, "tree-l3.png")
         self.assertEqual(l1.size, (400, 200))
         self.assertEqual(l2.size, (390, 190))
         self.assertEqual(l3.size, (384, 184))
