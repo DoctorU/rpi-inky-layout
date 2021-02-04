@@ -42,8 +42,8 @@ release-update-setup: release-precheck release-newbuild
 	git add 'library/setup.py'
 
 release: library/test release-precheck release-branch release-update-setup
-	git restore "library/test"
-	git commit -m"Release ${VERSION}"
+	git restore "library/test" \
+	&& git commit -m"Release ${VERSION}"
 	git tag "v${VERSION}" -a -m"Release v${VERSION} (`date +'%Y-%m-%d'`)"
 	git push origin '${VERSION}'
 	git push origin main
