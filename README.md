@@ -104,7 +104,6 @@ Or, if you're using your the `inky` library:
 
 
 Add as many new layers as you want:
-
     sublayout1 = topLayout.addLayer()
     sublayout2 = topLayout.addLayer()
     sublayout3 = topLayout.sddLayer()
@@ -137,24 +136,68 @@ And you're done!
 
 ## Advanced Features
 
+### Alternate Packing Mode
+
+Alternate packing mode is an implicit mechanism.
+You can specify a different `packingMode` in the `addLayer` method:
+
+    layout.addLayer(packingMode='v')
+
+By default Layouts added using `addLayer` inherit their parent's packing mode.
+
+#### Alternate Packing Mode example
+
+
+![Fig1: Alternate Packing Mode example](/doc/img/examples/alternatePackingMode.png)
+
+_Figure 1.1: Alternate Packing Mode example.
+Three Layout layers are illustrated, each with different packing modes.
+The top Layout uses `packingMode='h'`, the left Layout also uses
+`packingMode='h'`, and the right Layout uses `packingMode='v'`._
+
 ### Rotation
 
 If you want to render the Layout in a rotated orientation, you can set the
 Rotation parameter. It takes the values:
- * UP - normal, no rotation;
+ * UP - normal, no rotation; (Default behaviour)
  * LEFT - rotation by -90 or 270 degrees
  * RIGHT - rotation by +90 degrees
  * DOWN - rotated 180 degrees (up side down)
 
-see under `library/test/expected-images/test-rotated*.png` for some examples.
+#### Rotation examples
+For all the following rotation examples, `packingMode='v'`.
+
+![Rotation.UP (the default)](/doc/img/examples/rotation_UP.png)
+
+_Figure 2.1 Rotation.UP (the default)_
+
+![Rotation.LEFT](/doc/img/examples/rotation_LEFT.png)
+
+_Figure 2.2: Rotation.LEFT_
+
+![Rotation.DOWN](/doc/img/examples/rotation_DOWN.png)
+
+_Figure 2.3: Rotation.DOWN_
+
+![Rotation.RIGHT](/doc/img/examples/rotation_RIGHT.png)
+
+_Figure 2.4: Rotation.RIGHT_
+
 
 ### Packing Bias
 
 When adding a layer, you can specify packing bias:
 
     layout = new Layout()
-    sublayout1 = layout.addLayer(packingBias=2)
+    sublayout1 = layout.addLayer(packingBias=3)
     sublayout2 = layout.addLayer()  # default packingBias=1
 
-In this example, `sublayout1` will take up 2/3rds of the space (2/(1+2)),
-while `sublayout2` will be left with the remaining 1/3rd.
+In this example, `sublayout1` will take up 3/4s of the space (3/(1+3)),
+while `sublayout2` will be left with the remaining 1/4.
+
+#### Packing Bias example
+
+![packingBias=3](/doc/img/examples/packingBias.png)
+
+_Figure 3.1: Two layers, the first uses the default `packingBias`,
+the second uses `packingBias=3`._
