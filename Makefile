@@ -1,10 +1,13 @@
 BUILDVER_FILE=.release/build
+IMG_EG_SRC=library/test/expected-images
+IMG_EG_DOC=doc/img/examples
 include .release/release_config
 
 .PHONY: python-newbuild
 library/lint:
 	cd library; flake8 . --statistics
 library/test: library/lint
+	mkdir -p library/test/expected-images/
 	cd library; python3 -m unittest discover -s test/ -p "layout_*_test.py"
 library/build: library/test
 library/README.md: README.md
@@ -17,7 +20,17 @@ python-licence: library/LICENSE.txt
 
 git-pull:
 	git pull --all --prune
+release-docs:
+	test -d '$(IMG_EG_SRC)'
+	mkdir -p '$(IMG_EG_DOC)'
+	rm $(IMG_EG_DOC)/*.png
 
+	cp $(IMG_EG_SRC)/test-alternatePackingMode.png $(IMG_EG_DOC)/alternatePackingMode.png
+	cp $(IMG_EG_SRC)/test-packingBias.png $(IMG_EG_DOC)/packingBias.png
+	cp $(IMG_EG_SRC)/test-rotated-UP-add-3-layers.png $(IMG_EG_DOC)/rotation_UP.png
+	cp $(IMG_EG_SRC)/test-rotated-LEFT-add-3-layers.png $(IMG_EG_DOC)/rotation_LEFT.png
+	cp $(IMG_EG_SRC)/test-rotated-DOWN-add-3-layers.png $(IMG_EG_DOC)/rotation_DOWN.png
+	cp $(IMG_EG_SRC)/test-rotated-RIGHT-add-3-layers.png $(IMG_EG_DOC)/rotation_RIGHT.png
 release-precheck:
 	echo "VERSION: ${VERSION}"
 	echo "RELEASE_FROM: ${RELEASE_FROM}"

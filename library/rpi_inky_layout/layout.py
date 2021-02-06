@@ -233,7 +233,8 @@ class Layout:
     def _drawBorder(self, draw):
         w = self.borderWidth
         c = self.borderColour
-        draw.rectangle([(0, 0), self.size], outline=c, width=w)
+        _size = (self.size[0] - 1, self.size[1] - 1)
+        draw.rectangle([(0, 0), _size], outline=c, width=w)
         count = len(self._children)
         for i, child in enumerate(self._children):
             if(self.packingMode == 'h'):
