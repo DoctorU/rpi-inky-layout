@@ -1,8 +1,10 @@
 from PIL import Image, ImageDraw
 from random import randint
 import numpy
+import pdb
 
 from .rotation import Rotation
+from math import floor
 
 
 """
@@ -19,11 +21,10 @@ class Layout:
         return tuple(reversed(tupleValue))
 
     def __str__(self):
-        return "{id}/{depth}/{pb}/{children}:{tl}-{mid}-{dim}".format(
+        return "{id}/{depth}/{pb}/{children}:{tl}+{dim}".format(
             id=self._id,
             depth=self._depth,
-            tl=self.topleft,
-            mid=self._middle,
+            tl=self.topLeft,
             dim=self.size,
             pb=self.packingBias,
             children=len(self._children)
@@ -66,25 +67,36 @@ class Layout:
         """  # noqa: E501
         self.rotation = rotation
         self.packingBias = packingBias
-        if self.rotation.value % 2:
-            self.size = self.tupleReversed(size)
-        else:
-            self.size = size
+#        if self.rotation.value % 2:
+#            self.size = self.tupleReversed(size)
+#        else:
+        self.size = size
         self.rotation_degrees = self.rotation.value * 90
-        self._middle = tuple(dim / 2 for dim in size)
-        self.topleft = (0, 0)
+        self.topLeft = (0, 0)
         self.packingMode = packingMode
         self.imageMode = imageMode
 
         if isinstance(border, int):
-            self.borderWidth = border
+            self.borders = (border, border, border, border)
             self.borderColour = 2
         elif isinstance(border, tuple):
-            self.borderWidth, self.borderColour = border
+            borders, self.borderColour = border
+            if isinstance(borders, int):
+                self.borders = (borders, borders, borders, borders)
+            elif len(borders) == 2:
+                btb, blr = borders
+                self.borders = (btb, blr, btb, blr)
+            elif len(borders) == 4:
+                self.borders = borders
+            else:
+                raise("Illegal borders format: {b}".format(b=borders))
+
         elif not isinstance(border, None):
-            raise("border is not an allowed type:{t}".format(t=type(border)))
+            raise("borders is not an allowed type:{t}".format(t=type(border)))
 
         self._children = []
+        self._spacers = []
+        self._slots = []
         self._image = None
         self._depth = depth
         self._id = randint(1024, 8192)
@@ -136,131 +148,166 @@ class Layout:
             rotation=proto.rotation
         )
 
-    def resize(self, size, border=(0, 0)):
-        size = numpy.subtract(size, border)
+    def resize(self, size):
         size = tuple(round(dim) for dim in size)
         self.size = size
         if self._image:
             self._image = self._image.crop((0, 0) + size)
         self._resizeChildren()
 
-    def _resizeChildren(self):
+    def _calcDrawableSize(self):
+        w, h = self.size
+        bt, br, bb, bl = self.borders
+        _calcDrawableSize = (w - bl - br, h - bt - bb)
+        return _calcDrawableSize
 
+    def _calcSlotWidth(self):
+        dw = self._calcDrawableSize()[0]
+        sw = self._spacersWidth()
+        w = (dw - sw)
+        slotCount = self._getChildSlotTotal()
+        if slotCount > 0:
+#            w = floor(w / slotCount)
+
+            w = (w / slotCount)
+        print("slotwidth:{sw},{sw},{w},{sc}".format(dw=dw, sw=sw, w=w, sc=slotCount))
+        w = int(w)
+        print("slotwidth:{sw},{sw},{w},{sc}".format(dw=dw, sw=sw, w=w, sc=slotCount))
+        return w
+
+    def _getSlotWidthFor(self, child):
+        return self._calcSlotWidth() * child.packingBias
+
+    def _calcSpacersErrorMargin(self):
+        """The additional width to put into the spacers, to even things out."""
+        drawableWidth = self._calcDrawableSize()[0]
         childCount = len(self._children)
+        _errorWidth = 0
+        if childCount > 0:
+            _errorWidth = drawableWidth % childCount
 
+        print("childcount:{c} _errorWidth:{e} drawableWidth:{w}".format(
+            c=childCount, e=_errorWidth, w=drawableWidth)
+        )
+        return _errorWidth
+
+    def _calcOptimumSpacerWidth(self):
+        bt, br, bb, bl = self.borders
+        print("_optimumSpacerWidth:{bl}".format(bl=bl))
+        return bl
+
+    def _realSpacerWidth(self, index):
+        _optWidth = self._calcOptimumSpacerWidth()
+        _errorWidth = 0
+        _totalError = self._calcSpacersErrorMargin()
+        if index <= _totalError:
+            _errorWidth = 1
+        print("_realSpacerWidth:opt={o},err={e},totalErr={te}".format(
+                o=_optWidth, e=_errorWidth, te=_totalError
+            )
+        )
+        return _optWidth + _errorWidth
+
+    def _spacersWidth(self):
+        """The total width of all the spacers."""
+        return sum(self._spacers)
+
+    def _spacersWidthFor(self, index):
+        return self._spacers[index]
+
+    def _resizeChildren(self):
+#        pdb.set_trace()
+        childCount = len(self._children)
+        self._spacers = []
+        self._slots = []
         if childCount > 0:  # only update when there's children present
 
-            size = self.size
-            if self.packingMode == 'v':
-                size = self.tupleReversed(size)
+            # calculate overall drawable size
+            size = self._calcDrawableSize()
 
-            # Calculating values for each Child:
-            packingCount = self._getChildrenPackingBiasTotal()
+            # calculate spacers
+            self._spacers = [
+                    self._realSpacerWidth(i) for i, c in
+                    enumerate(self._children[0:-1])
+            ]
 
-            slotMid = (size[0] / packingCount, size[1])
-            slotMid = tuple(dim / 2 for dim in slotMid)
+            slotSize = (self._calcSlotWidth(), size[1])
 
-            # slotSize is the size of each slot.
-            # multiple slotSize by layout's packingBias to get its true size
-            slotSize = tuple(dim * 2 for dim in slotMid)
+            # Slots are sized to compensate for packingBias
+            def _calcSlotSize(child):
+                return (slotSize[0] * child.packingBias, slotSize[1])
 
-            # border doesn't change with packingBias
-            borderWidth = self.borderWidth
-            border0 = borderWidth * (childCount + 1) / childCount
-            border1 = borderWidth * 2
-            border = (border0, border1)
+            self._slots = [_calcSlotSize(child) for child in self._children]
+            print(
+                    "size:{s} children:{c}".format(
+                        s=self.size,
+                        c=len(self._children)
+                    ),
+                    "borders:{b} _spacers:{sp} _slots:{sl}".format(
+                        b=self.borders,
+                        sp=self._spacers,
+                        sl=self._slots
+                    )
+            )
 
-            if self.packingMode == 'v':
-                slotSize = self.tupleReversed(slotSize)
-                border = self.tupleReversed(border)
-
+#            if self.packingMode == 'v':
+#                slotSize = self.tupleReversed(slotSize)
             [
                 self._resizeAChild(
                     child,
-                    index,
-                    slotSize,
-                    slotMid,
-                    border,
-                    packingCount
+                    index
                 ) for index, child in enumerate(self._children)
             ]
 
-    def _resizeAChild(
-            self,
-            child, index, slotSize, slotMid, border, packingCount):
+    def _resizeAChild(self, child, index):
 
-        childStartSlot = self._getChildPackingBiasStart(index)
-
-        if(self.packingMode == 'v'):
-            slotSize = self.tupleReversed(slotSize)
-
-        # calculate the new size
-        slotSize0, slotSize1 = slotSize
+        slotSize = self._slots[index]
         # calculate the new top-left FIRST (depends on final slot position)
-        borderOffset = self.borderWidth * (index + 1)
-        tlOffset0 = slotSize0 * childStartSlot
-        topleft = (int(borderOffset + tlOffset0),  int(self.borderWidth))
+        spacer = 0
+        if (index > 0):
+            spacer = sum(self._spacers[0:index])
+        left = self.borders[3] + spacer + (slotSize[0] * index)
+        topLeft = (left, self.borders[0])
 
-        # Calculate the new slot size 0-dimension
-        size0 = slotSize0 * child.packingBias
-        size = (size0, slotSize1)
-
-        childMid = (slotMid[0] * child.packingBias, slotMid[1])
-
-        if(self.packingMode == 'v'):
-            size = self.tupleReversed(size)
-            childMid = self.tupleReversed(childMid)
-            topleft = self.tupleReversed(topleft)
-
-        child.resize(size, border)
-        # This is broken
-        child.middle = childMid
-        child.topleft = topleft
+        child.resize(slotSize)
+        child.topLeft = topLeft
 
     def draw(self):
         if not self._image:
+            print("creating image", self.imageMode)
             self._image = Image.new(self.imageMode, self.size, self._depth)
         self._drawChildren()
 
         # draw the border
         draw = ImageDraw.Draw(self._image)
-        if self.borderWidth:
+        if self.borders:
             self._drawBorder(draw)
 
         # return image rotated to the correct orientation
         return self._image.rotate(-self.rotation_degrees, expand=1)
 
     def _drawBorder(self, draw):
-        w = self.borderWidth
+        w = self.borders[0]
         c = self.borderColour
-        _size = (self.size[0] - 1, self.size[1] - 1)
-        draw.rectangle([(0, 0), _size], outline=c, width=w)
-        count = len(self._children)
-        for i, child in enumerate(self._children):
-            if(self.packingMode == 'h'):
-                xy = [
-                    (self.size[0] / count * (i + 1), 0),
-                    (self.size[0] / count * (i + 1), self.size[1])
-                ]
-                draw.line(xy, c, w)
-            if(self.packingMode == 'v'):
-                xy = [
-                    (0, self.size[1] / count * (i + 1)),
-                    (self.size[0], self.size[1] / count * (i + 1))
-                ]
-                draw.line(xy, c, w)
+        rectSize = tuple(numpy.subtract(self.size, 1))
+        draw.rectangle([(0, 0), rectSize], outline=c, width=w)
+        if len(self._spacers) > 0:
+            print("DRAWING SPACERS")
 
-    def _getChildrenPackingBiasTotal(self):
-        return self.getChildrenPackingBiasCount(self._children)
+    def _getChildSlotTotal(self):
+        """The total number of slots."""
+        return self.getChildSlotCount(self._children)
 
     @staticmethod
-    def getChildrenPackingBiasCount(childrenList):
+    def getChildSlotCount(childrenList):
+        """The count of the slot."""
         packingBias = [child.packingBias for child in childrenList]
         packingCount = sum(packingBias)
         return packingCount
 
-    def _getChildPackingBiasStart(self, index):
-        return self.getChildrenPackingBiasCount(self._children[0:index])
+    def _getChildSlotStart(self, index):
+        """Which slot this child starts in."""
+        return self.getChildSlotCount(self._children[0:index])
 
     def _drawChildren(self):
         [child._drawChildren() for child in self._children]
@@ -277,7 +324,8 @@ class Layout:
             if not self._image:
                 self._image = self.setImage(child._image.copy())
             else:
-                self._image.paste(child._image, child.topleft)
+                print("{id}: {tl}".format(id=child._id, tl=child.topLeft))
+                self._image.paste(child._image, child.topLeft)
 
     def write(self, fp):
         self.draw().convert(mode="RGB").save(fp)

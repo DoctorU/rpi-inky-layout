@@ -11,18 +11,18 @@ class TestLayoutPackingBias(unittest.TestCase):
     def writeImage(layout, filename):
         layout.write('test/expected-images/' + filename)
 
-    def test_getChildPackingBiasTotalAndBiasStart(self):
+    def test_getChildSlotTotalAndBiasStart(self):
         layout = Layout((100, 100))
-        self.assertEqual(0, layout._getChildrenPackingBiasTotal())
+        self.assertEqual(0, layout._getChildSlotTotal())
 
         layout.addLayer(packingBias=3)
-        self.assertEqual(3, layout._getChildrenPackingBiasTotal())
+        self.assertEqual(3, layout._getChildSlotTotal())
 
         layout.addLayer(packingBias=3)
-        self.assertEqual(6, layout._getChildrenPackingBiasTotal())
+        self.assertEqual(6, layout._getChildSlotTotal())
 
-        self.assertEqual(0, layout._getChildPackingBiasStart(0))
-        self.assertEqual(3, layout._getChildPackingBiasStart(1))
+        self.assertEqual(0, layout._getChildSlotStart(0))
+        self.assertEqual(3, layout._getChildSlotStart(1))
 
     def testLayoutWidthHorizontal(self):
         layout = Layout((200, 10), packingMode='h', border=(0, 0))
@@ -33,8 +33,8 @@ class TestLayoutPackingBias(unittest.TestCase):
 
         self.assertEqual(150, layout1.size[0])
         self.assertEqual(50, layout2.size[0])
-        self.assertEqual((0, 0), layout1.topleft)
-        self.assertEqual((150, 0), layout2.topleft)
+        self.assertEqual((0, 0), layout1.topLeft)
+        self.assertEqual((150, 0), layout2.topLeft)
         self.writeImage(layout, "testLayoutWidthHorizontal.png")
 
     def testLayoutWidthVertical(self):
@@ -47,8 +47,8 @@ class TestLayoutPackingBias(unittest.TestCase):
 
         self.assertEqual(150, layout1.size[1])
         self.assertEqual(50, layout2.size[1])
-        self.assertEqual((0, 0), layout1.topleft)
-        self.assertEqual((0, 150), layout2.topleft)
+        self.assertEqual((0, 0), layout1.topLeft)
+        self.assertEqual((0, 150), layout2.topLeft)
         self.writeImage(layout, "testLayoutWidthVertical.png")
 
     def testWrite(self):

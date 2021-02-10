@@ -11,12 +11,12 @@ class TestLayoutAlternatePackingMode(unittest.TestCase):
     def writeImage(layout, filename):
         layout.write('test/expected-images/' + filename)
 
-    def test_getChildPackingBiasTotalAndBiasStart(self):
+    def test_getChildSlotTotalAndBiasStart(self):
         layout = Layout((100, 100))
-        self.assertEqual(0, layout._getChildrenPackingBiasTotal())
+        self.assertEqual(0, layout._getChildSlotTotal())
 
         layout1 = layout.addLayer(packingMode='h')
-        self.assertEqual(1, layout._getChildrenPackingBiasTotal())
+        self.assertEqual(1, layout._getChildSlotTotal())
         self.assertEqual((100, 100), layout.size)
         self.assertEqual((100, 100), layout1.size)
 
