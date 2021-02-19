@@ -3,6 +3,7 @@ from random import randint
 import unittest
 
 from rpi_inky_layout import Layout
+from . import layout_fixtures as fixtures
 
 
 class TestLayoutVerticalBasics(unittest.TestCase):
@@ -12,11 +13,10 @@ class TestLayoutVerticalBasics(unittest.TestCase):
         layout.write('test/expected-images/' + filename)
 
     def testAdd2ChildrenVerticalPacking(self):
-        layout = Layout((200, 100), 'v')
-
-        layer1 = layout.addLayer()
+        layout = fixtures.oneLayer((200, 100), packingMode='v')
+        layer1 = layout.children[0]
+        # VERIFIED
         self.assertEqual((200, 100), layer1.size)
-
         layer2 = layout.addLayer()
         self.assertEqual((200, 50), layer1.size)
         self.assertEqual((200, 50), layer2.size)
@@ -28,35 +28,74 @@ class TestLayoutVerticalBasics(unittest.TestCase):
         self.drawAndWrite(layout, 'testAdd2ChildrenVerticalPacking.png')
 
     # REVISIT
-    def testAddChildrenPackedVWithBorderEnabled(self):
-        layout = Layout((200, 300), 'v', border=1)
-        layer1 = layout.addLayer()
-        self.assertEqual((198, 298), layer1.size)
+    def testAddChildrenPackedVWithBorderEnabledOneLayers(self):
+        layout = fixtures.oneLayer((200, 300), packingMode='v', border=1)
+        [
+            self.assertEqual((198, 298), child.size)
+            for child
+            in layout.children
 
-        layer1 = layout.addLayer()
-        self.assertEqual((198, 149), layer1.size)
+        ]
 
-        layer1 = layout.addLayer()
-        self.assertEqual((198, 99), layer1.size)
+    def testAddChildrenPackedVWithBorderEnabledTwoLayers(self):
+        layout = fixtures.twoLayers((200, 300), packingMode='v', border=1)
+        [
+            self.assertEqual((198, 148), child.size)
+            for child
+            in layout.children
 
-        layer1 = layout.addLayer()
-        self.assertEqual((198, 74), layer1.size)
+        ]
 
-        layer1 = layout.addLayer()
-        self.assertEqual((198, 60), layer1.size)
+    def testAddChildrenPackedVWithBorderEnabledTwoLayers(self):
+        layout = fixtures.threeLayers((200, 300), packingMode='v', border=1)
+        [
+            self.assertEqual((198, 98), child.size)
+            for child
+            in layout.children
 
+        ]
+
+    def testAddChildrenPackedVWithBorderEnabledFourLayers(self):
+        layout = fixtures.fourLayers((200, 300), packingMode='v', border=1)
+        [
+            self.assertEqual((198, 72), child.size)
+            for child
+            in layout.children
+
+        ]
+
+    def testAddChildrenPackedVWithBorderEnableFiveLayers(self):
+        layout = fixtures.fiveLayers((200, 300), packingMode='v', border=1)
+        [
+            self.assertEqual((198, 56), child.size)
+            for child
+            in layout.children
+
+        ]
+        [
+            self.addStuffToImage(child, 1, self.RandomColour())
+            for child
+            in layout.children
+        ]
+        self.drawAndWrite(layout, "addChildrenPackedVWiBorder5Layers.png")
+
+
+    # FIXME refactor into separate utility package
     def NewImage(self, layout, mode='P', colour=randint(0, 2)):
         img = Image.new(mode, layout.size, colour)
         if mode == 'P':
             img.putpalette(Layout.DEFAULT_PALETTE)
         return img
 
+    # FIXME refactor into separate utility package
     def RandomColour(self):
         return (randint(64, 255), randint(64, 255), randint(64, 255))
 
+    # FIXME refactor into separate utility package
     def NewDraw(self, img):
         return ImageDraw.Draw(img)
 
+    # FIXME refactor into separate utility package
     def addStuffToImage(self, layout, childId=0, bgcolour=(128, 128, 1)):
 
         img = self.NewImage(layout, "RGB", bgcolour)
@@ -74,6 +113,7 @@ class TestLayoutVerticalBasics(unittest.TestCase):
         layout.setImage(img)
         layout.draw()
 
+    # FIXME refactor into separate utility package
     def InterrogateLayer(self, layout):
         print("parent size: {ps}".format(ps=layout.size))
         print("parent:borders: {b}".format(b=layout.borders))

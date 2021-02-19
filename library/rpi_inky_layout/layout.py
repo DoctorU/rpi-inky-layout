@@ -20,12 +20,13 @@ class Layout:
         return tuple(reversed(tupleValue))
 
     def __str__(self):
-        return "{id}/{depth}/{pb}/{children}:{tl}+{dim}".format(
+        return "{id}/{depth}/{pm}/{pb}/{children}:{tl}+{dim}".format(
             id=self._id,
             depth=self._depth,
             tl=self.topLeft,
             dim=self.size,
             pb=self.packingBias,
+            pm=self.packingMode,
             children=len(self.children)
         ) + "\nsl:{sl},b:{b},padd:{ps},sp:{sp},tl:{tl}".format(
                 sl=self._slots,
@@ -154,10 +155,12 @@ class Layout:
         return childLayer
 
     def resize(self, size):
+        print ("--")
         self.size = size
         if self._image:
             self._image = self._image.crop((0, 0) + size)
         self._resizeChildren()
+        print ("resized", self)
 
     def _childCount(self):
         return len(self.children)
@@ -177,32 +180,25 @@ class Layout:
         _calcDrawableSize = (w - bl - br, h - bt - bb)
         return _calcDrawableSize
 
-    def _calcSlotWidth(self):
-        dw, dw1 = self._calcDrawableSize()
-        sw = self._spacersWidth()
+    def _calcSlotSize(self):
+        dw, dw1 = self.transformAsNeeded(self._calcDrawableSize())
+        sw = self._sumSpacersWidth()
         w = dw - sw
         w = w * 1.0
-        print("_calcSlotWidth:{d}-{s}={w}".format(d=dw, s=sw, w=w))
         slotCount = self._getChildSlotTotal()
         if slotCount > 1:
             w = w / slotCount
-        print("_calcSlotWidth:slotCount", slotCount)
-        print("_calcSlotWidth:childCount", self._childCount())
-        print("_calcSlotWidth:{d}-{s}/{c}={w}".format(
-                d=dw, s=sw, w=w, c=slotCount
-            )
-        )
-        return int(floor(w))
+        return (int(floor(w)), dw1)
 
-    def _getSlotWidthFor(self, child):
+    def _getSlotSizeFor(self, child):
+        slotSize = self._calcSlotSize()
         if self._moreThanOneChild():
-            return self._calcSlotWidth() * child.packingBias
-        else:
-            return self._calcSlotWidth()
+            slotSize = (slotSize[0] * child.packingBias, slotSize[1])
+        return self.transformAsNeeded(slotSize)
 
     def _calcSpacerErrorMargin(self):
         """The additional width to put into each spacer, to even things out."""
-        drawableWidth, dh = self._calcDrawableSize()
+        drawableWidth, dh = self.transformAsNeeded(self._calcDrawableSize())
         _errorWidth = 0
         if self._hasChildren():
             _errorWidth = drawableWidth % self._childCount()
@@ -218,7 +214,7 @@ class Layout:
 
     def _calcRealSpacerWidth(self, index):
         _optWidth = self._calcOptimumSpacerWidth()
-        _padding = self._calcPadding(index)
+        _padding = self._padSpacers[index]
         return _optWidth + _padding
 
     def _calcPadding(self, index):
@@ -229,34 +225,49 @@ class Layout:
         return _padding
 
     def _calcTopLeft(self, index):
-        slotSize = self.transformAsNeeded(self._slots[index])
-
+        slotSize = self._slots[index]
+        slotDeltas = ([dim * index for dim in slotSize])
+        topLeftBorders = (self.borders[0], self.borders[3])
         spacer = 0  # 0 offset from drawable area, NOT parent area
         if (index > 0):
             spacer = sum(self._spacers[0:index])
-        left = self.borders[3] + spacer + (slotSize[0] * index)
-        top = self.borders[0]
-        topLeft = (left, top)
-        return topLeft
+        if self.packingMode == 'h':
+            left = spacer + slotDeltas[0]
+            top = 0
+        elif self.packingMode == 'v':
+            left = 0
+            top = spacer + slotDeltas[1]
+        topLeft = (left + topLeftBorders[0], top + topLeftBorders[1])
+        return self.transformAsNeeded(topLeft)
 
-    def _spacersWidth(self):
+    def _sumSpacersWidth(self):
         """The total width of all the spacers."""
         return sum(self._spacers)
 
-    def _spacersWidthFor(self, index):
+    def _getSpacerWidthFor(self, index):
         return self._spacers[index]
 
     def _showSparePixels(self):
+        if self.packingMode == 'h':
+            borderIndex = 1
+        else:
+            borderIndex = 0
+        size = self.transformAsNeeded(self.size)
+        size0 = size[0]
+        sumSpacers = sum(self._spacers)
+        slotDims = [self.transformAsNeeded(slot)[0] for slot in self._slots]
+        sumSlots = sum(slotDims)
+
+        border1 = self.borders[1 - borderIndex]
+        border2 = self.borders[3 - borderIndex]
         _sparePixels = (
-            self.size[0] -
-            sum(self._spacers) -
-            sum([w for w,h in self._slots]) -
-            self.borders[1] -
-            self.borders[3]
+            size0 - sumSpacers -
+            sumSlots -
+            border1 - border2
         )
         print("spare pixels:", _sparePixels, self)
         return _sparePixels
-        
+
     def _resizeChildren(self):
         childCount = len(self.children)
 
@@ -267,21 +278,25 @@ class Layout:
 
             # calc spacers
             spacerChildren = enumerate(self.children[1:])
+            self._padSpacers = [
+                self._calcPadding(i) for i, c in spacerChildren
+            ]
+            spacerChildren = enumerate(self.children[1:])
+            # transformed viz packingMode
             self._spacers = [
                     self._calcRealSpacerWidth(i) for i, c in
                     spacerChildren
             ]
-            spacerChildren = enumerate(self.children[1:])
-            self._padSpacers = [
-                self._calcPadding(i) for i, c in spacerChildren
-            ]
-            slotSize = (self._calcSlotWidth(), size[1])
+
+            slotSize = self._calcSlotSize()
 
             # Slots are sized to compensate for packingBias
-            def _calcSlotSize(child):
-                return (slotSize[0] * child.packingBias, slotSize[1])
 
-            self._slots = [_calcSlotSize(child) for child in self.children]
+            self._slots = [
+                self._getSlotSizeFor(child)
+                for child
+                in self.children
+            ]
             # toplefts depend on slots
             self._topLefts = [
                 self._calcTopLeft(i) for i, c in enumerate(self.children)
@@ -295,25 +310,16 @@ class Layout:
                     index
                 ) for index, child in enumerate(self.children)
             ]
-            self.size = self.transformAsNeeded(self.size)
             print(self)
 
     def _resizeAChild(self, child, index):
 
         # slots come 'pre-transformed' for v/h
-        slotSize = self.transformAsNeeded(self._slots[index])
-
-        # calc the new top-left FIRST (depends on final slot position)
-        # FIXME is this the problem?
-        spacer = 0  # 0 offset from drawable area, NOT parent area
-        if (index > 0):
-            spacer = sum(self._spacers[0:index])
-        left = self.borders[3] + spacer + (slotSize[0] * index)
-        top = self.borders[0]
-        topLeft = (left, top)
+        slotSize = self._slots[index]
         topLeft = self._topLefts[index]
         bottomRight = tuple(zip(topLeft, slotSize))
         print("_resizeAChild", self.size, slotSize, topLeft, bottomRight)
+
 
         child.resize(slotSize)
         child.topLeft = topLeft

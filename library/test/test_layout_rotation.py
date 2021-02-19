@@ -3,6 +3,7 @@ import numpy
 import unittest
 
 from rpi_inky_layout import Layout, Rotation
+from . import layout_fixtures as fixtures
 
 
 class TestLayoutRotation(unittest.TestCase):
@@ -49,18 +50,23 @@ class TestLayoutRotation(unittest.TestCase):
     def testLayoutRotatedUpAdd3Layers(self):
         self.add3LayersAndRotate((100, 300), Rotation.UP)
 
-    def add3LayersAndRotate(self, size,  rotation):
-        layout = Layout(size, packingMode='v', border=0, rotation=rotation)
-        layout1 = layout.addLayer()
-        layout2 = layout.addLayer()
-        layout3 = layout.addLayer()
+    def add3LayersAndRotate(self, size, rotation):
+        layout = fixtures.threeLayers(
+            size, packingMode='v', border=0, rotation=rotation
+        )
         img = Image.new("RGB", layout.size, 0x000)
         layout.setImage(img)
-        self.assertEqual((100, 100), layout1.size)
+        [
+            self.assertEqual((100, 100), child.size)
+            for child
+            in layout.children
+        ]
+
+        layout1 = layout.children[0]
+        layout2 = layout.children[1]
+        layout3 = layout.children[2]
         self.assertEqual((0, 0), layout1.topLeft)
-        self.assertEqual((100, 100), layout2.size)
         self.assertEqual((0, 100), layout2.topLeft)
-        self.assertEqual((100, 100), layout3.size)
         self.assertEqual((0, 200), layout3.topLeft)
         img1 = Image.new("RGB", layout1.size, 0xff8800)  # red
         self.drawTextOnImage("layout1", img1)

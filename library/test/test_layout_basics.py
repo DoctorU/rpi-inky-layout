@@ -63,7 +63,7 @@ class TestLayoutBasics(unittest.TestCase):
         ]
 
     def testAddChildrenPackedHWithBorderEnabledTwoLayers(self):
-        layout = fixtures.twoLayersH((600, 100), border=1)
+        layout = fixtures.twoLayers((600, 100), border=1)
         self.assertEqual(2, len(layout.children))
         [self.assertEqual(1, border) for border in layout.borders]
         [
@@ -78,7 +78,7 @@ class TestLayoutBasics(unittest.TestCase):
         ]
 
     def testAddChildrenPackedHWithBorderEnabledThreeLayers(self):
-        layout = fixtures.threeLayersH((600, 100), border=1)
+        layout = fixtures.threeLayers((600, 100), border=1)
         [
             self.addStuffToImage(child, 1, self.RandomColour())
             for child
@@ -91,7 +91,7 @@ class TestLayoutBasics(unittest.TestCase):
         ]
 
     def testAddChildrenPackedHWithBorderEnabledFourLayers(self):
-        layout = fixtures.fourLayersH((600, 100), border=1)
+        layout = fixtures.fourLayers((600, 100), border=1)
         [
             self.addStuffToImage(child, 1, self.RandomColour())
             for child
@@ -104,7 +104,7 @@ class TestLayoutBasics(unittest.TestCase):
         ]
 
     def testAddChildrenPackedHWithBorderEnabledFiveLayers(self):
-        layout = fixtures.fiveLayersH((600, 100), border=1)
+        layout = fixtures.fiveLayers((600, 100), border=1)
         [
             self.addStuffToImage(child, 1, self.RandomColour())
             for child
@@ -169,18 +169,17 @@ class TestLayoutBasics(unittest.TestCase):
 
     # REVISIT
     def testGenerating2Layers(self):
-        layout = fixtures.threeLayersH((400, 100), border=3)
+        layout = fixtures.threeLayers((400, 100), border=3)
         layout.imageMode = "RGB"
         self.addStuffToImage(layout, 0, self.RandomColour())
         [
             self.addStuffToImage(child, i, self.RandomColour())
             for i, child
-            in enumerate (layout.children)
+            in enumerate(layout.children)
         ]
 
         layout.draw()
         self.drawAndWrite(layout, "testGenerating2Layers.png")
-        slotsW = sum(list(zip(*layout._slots))[0])
         borderW = layout.borders[1] + layout.borders[3]
         spacersW = sum(layout._spacers)
 
@@ -192,7 +191,6 @@ class TestLayoutBasics(unittest.TestCase):
             for child
             in layout.children
         ]
-
 
     def testTreeOfLayers(self):
         l1 = fixtures.childlessLayout((400, 200), border=5)
@@ -222,15 +220,15 @@ class TestLayoutBasics(unittest.TestCase):
         self.assertEqual((394, 196), layout._calcDrawableSize())
 
     def test_calcSpacerErrorMarginBorder5OneChild(self):
-        layout = fixtures.oneLayerH((400, 200), border=5)
+        layout = fixtures.oneLayer((400, 200), border=5)
         self.assertEqual((400 - 10) % 1, layout._calcSpacerErrorMargin())
 
     def test_calcSpacerErrorMarginBorder5TwoChildren(self):
-        layout = fixtures.twoLayersH((400, 200), border=5)
+        layout = fixtures.twoLayers((400, 200), border=5)
         self.assertEqual((400 - 10) % 2, layout._calcSpacerErrorMargin())
 
     def test_calcSpacerErrorMarginBorder5ThreeChildren(self):
-        layout = fixtures.threeLayersH((400, 200), border=5)
+        layout = fixtures.threeLayers((400, 200), border=5)
         self.assertEqual((400 - 10) % 3, layout._calcSpacerErrorMargin())
 
     def test_calcSpacerErrorMarginBorder3(self):
@@ -249,26 +247,26 @@ class TestLayoutBasics(unittest.TestCase):
         layout = Layout((400, 200), border=1)
         layout.addLayer()
         layout.addLayer()
-        self.assertEqual(1, layout._spacersWidth())
+        self.assertEqual(1, layout._sumSpacersWidth())
         layout.addLayer()
-        self.assertEqual(6, layout._spacersWidth())
+        self.assertEqual(6, layout._sumSpacersWidth())
 
     def test_calcSlotWidthBorder5(self):
         layout = Layout((400, 200), border=5)
 
         # No Layers added yet
-        self.assertEqual(390, layout._calcSlotWidth())
+        self.assertEqual((390, 190), layout._calcSlotSize())
         layout.addLayer()
-        self.assertEqual(390, layout._calcSlotWidth())
+        self.assertEqual((390, 190), layout._calcSlotSize())
         layout.addLayer()
-        self.assertEqual(192, layout._calcSlotWidth())
+        self.assertEqual((192, 190), layout._calcSlotSize())
 
     def test_calcSlotWidthBorder4(self):
         layout = Layout((400, 200), border=4)
         layout.addLayer()
-        self.assertEqual(392, layout._calcSlotWidth())
+        self.assertEqual((392, 192), layout._calcSlotSize())
         layout.addLayer()
-        self.assertEqual(int((392 - 4) / 2), layout._calcSlotWidth())
+        self.assertEqual((194, 192), layout._calcSlotSize())
 
     def NewImage(self, layout, mode='P', colour=randint(0, 2)):
         img = Image.new(mode, layout.size, colour)

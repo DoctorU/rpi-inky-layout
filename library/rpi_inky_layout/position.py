@@ -1,6 +1,3 @@
-import numpy
-
-
 class Position:
 
     @staticmethod

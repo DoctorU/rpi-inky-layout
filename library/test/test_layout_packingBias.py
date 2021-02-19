@@ -3,6 +3,7 @@ from PIL import Image, ImageDraw
 import unittest
 
 from rpi_inky_layout import Layout
+from . import layout_fixtures as fixtures
 
 
 class TestLayoutPackingBias(unittest.TestCase):
@@ -27,7 +28,7 @@ class TestLayoutPackingBias(unittest.TestCase):
     def testLayoutWidthHorizontal(self):
         layout = Layout((200, 10), packingMode='h', border=(0, 0))
         layout1 = layout.addLayer(packingBias=3)
-        self.assertEqual((198, 10), layout1.size)
+        self.assertEqual((200, 10), layout1.size)
 
         layout2 = layout.addLayer(packingBias=1)
 
@@ -39,7 +40,7 @@ class TestLayoutPackingBias(unittest.TestCase):
 
     def testLayoutWidthVertical(self):
 
-        layout = Layout((10, 200), packingMode='v')
+        layout = fixtures.oneLayer((10, 200), packingMode='v')
         layout1 = layout.addLayer(packingBias=3)
         self.assertEqual((10, 200), layout1.size)
 
