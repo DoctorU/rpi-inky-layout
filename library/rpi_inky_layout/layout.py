@@ -184,6 +184,8 @@ class Layout:
         dw, dw1 = self.transformAsNeeded(self._calcDrawableSize())
         sw = self._sumSpacersWidth()
         w = dw - sw
+        if self._onlyOneChild():
+            return (w, dw1)
         w = w * 1.0
         slotCount = self._getChildSlotTotal()
         if slotCount > 1:
@@ -225,8 +227,9 @@ class Layout:
         return _padding
 
     def _calcTopLeft(self, index):
-        slotSize = self._slots[index]
-        slotDeltas = ([dim * index for dim in slotSize])
+        slotSize = self._calcSlotSize()
+        slotStart = self._getChildSlotStart(index)
+        slotDeltas = ([dim * slotStart for dim in slotSize])
         topLeftBorders = (self.borders[0], self.borders[3])
         spacer = 0  # 0 offset from drawable area, NOT parent area
         if (index > 0):
@@ -238,6 +241,8 @@ class Layout:
             left = 0
             top = spacer + slotDeltas[1]
         topLeft = (left + topLeftBorders[0], top + topLeftBorders[1])
+        # FIXME
+        breakpoint()
         return self.transformAsNeeded(topLeft)
 
     def _sumSpacersWidth(self):
@@ -287,10 +292,6 @@ class Layout:
                     self._calcRealSpacerWidth(i) for i, c in
                     spacerChildren
             ]
-
-            slotSize = self._calcSlotSize()
-
-            # Slots are sized to compensate for packingBias
 
             self._slots = [
                 self._getSlotSizeFor(child)
