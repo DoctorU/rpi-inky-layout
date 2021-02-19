@@ -27,26 +27,26 @@ class TestLayoutPackingBias(unittest.TestCase):
     def testLayoutWidthHorizontal(self):
         layout = Layout((200, 10), packingMode='h', border=(0, 0))
         layout1 = layout.addLayer(packingBias=3)
-        self.assertEqual(200, layout1.size[0])
+        self.assertEqual((198, 10), layout1.size)
 
         layout2 = layout.addLayer(packingBias=1)
 
-        self.assertEqual(150, layout1.size[0])
-        self.assertEqual(50, layout2.size[0])
+        self.assertEqual((150, 10), layout1.size)
+        self.assertEqual((50, 10), layout2.size)
         self.assertEqual((0, 0), layout1.topLeft)
-        self.assertEqual((150, 0), layout2.topLeft)
+        self.assertEqual((50, 0), layout2.topLeft)
         self.writeImage(layout, "testLayoutWidthHorizontal.png")
 
     def testLayoutWidthVertical(self):
 
         layout = Layout((10, 200), packingMode='v')
         layout1 = layout.addLayer(packingBias=3)
-        self.assertEqual(200, layout1.size[1])
+        self.assertEqual((10, 200), layout1.size)
 
         layout2 = layout.addLayer(packingBias=1)
 
-        self.assertEqual(150, layout1.size[1])
-        self.assertEqual(50, layout2.size[1])
+        self.assertEqual((150, 10), layout1.size)
+        self.assertEqual((50, 10), layout2.size)
         self.assertEqual((0, 0), layout1.topLeft)
         self.assertEqual((0, 150), layout2.topLeft)
         self.writeImage(layout, "testLayoutWidthVertical.png")

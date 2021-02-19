@@ -62,13 +62,13 @@ class TestLayoutRotation(unittest.TestCase):
         self.assertEqual((0, 100), layout2.topLeft)
         self.assertEqual((100, 100), layout3.size)
         self.assertEqual((0, 200), layout3.topLeft)
-        img1 = Image.new("RGB", layout1.size, 0xff0000)  # red
+        img1 = Image.new("RGB", layout1.size, 0xff8800)  # red
         self.drawTextOnImage("layout1", img1)
         layout1.setImage(img1)
         img2 = Image.new("RGB", layout2.size, 0x000ff00)  # green
         self.drawTextOnImage("layout2", img2)
         layout2.setImage(img2)
-        img3 = Image.new("RGB", layout3.size, 0x8888ff)  # blue
+        img3 = Image.new("RGB", layout3.size, 0xaaaaff)  # blue
         self.drawTextOnImage("layout3", img3)
         layout3.setImage(img3)
         self.writeImage(
