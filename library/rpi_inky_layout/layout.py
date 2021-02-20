@@ -227,22 +227,16 @@ class Layout:
         return _padding
 
     def _calcTopLeft(self, index):
-        slotSize = self._calcSlotSize()
+        slotSize0 = self._calcSlotSize()[0]
         slotStart = self._getChildSlotStart(index)
-        slotDeltas = ([dim * slotStart for dim in slotSize])
+        slotDelta = slotSize0 * slotStart
         topLeftBorders = (self.borders[0], self.borders[3])
         spacer = 0  # 0 offset from drawable area, NOT parent area
         if (index > 0):
             spacer = sum(self._spacers[0:index])
-        if self.packingMode == 'h':
-            top = 0
-            left = spacer + slotDeltas[0]
-        elif self.packingMode == 'v':
-            top = spacer + slotDeltas[0]
-            left = 0
-        topLeft = (top + topLeftBorders[0], left + topLeftBorders[1])
-        # FIXME
-        breakpoint()
+        top = spacer + slotDelta + topLeftBorders[0]
+        left = topLeftBorders[1]
+        topLeft = (top, left)
         return self.transformAsNeeded(topLeft)
 
     def _sumSpacersWidth(self):
