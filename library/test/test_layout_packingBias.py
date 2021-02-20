@@ -24,7 +24,7 @@ class TestLayoutPackingBias(unittest.TestCase):
         self.assertEqual(0, layout._getChildSlotStart(0))
         self.assertEqual(3, layout._getChildSlotStart(1))
 
-    def testPackingBiasHorizontal(self):
+    def testPackingBiasHorizontal3_1(self):
         layout = Layout((200, 10), packingMode='h', border=(0, 0))
         layout1 = layout.addLayer(packingBias=3)
         self.assertEqual((200, 10), layout1.size)
@@ -35,7 +35,24 @@ class TestLayoutPackingBias(unittest.TestCase):
         self.assertEqual((50, 10), layout2.size)
         self.assertEqual((0, 0), layout1.topLeft)
         self.assertEqual((150, 0), layout2.topLeft)
-        self.writeImage(layout, "testPackingBiasHorizontal.png")
+        self.writeImage(layout, "testPackingBiasHorizontal3_1.png")
+
+    def testPackingBiasHorizontal1_3(self):
+        layout = Layout((200, 10), packingMode='h', border=(0, 0))
+        layout1 = layout.addLayer(packingBias=1)
+        self.assertEqual((200, 10), layout1.size)
+
+        layout2 = layout.addLayer(packingBias=3)
+
+        print(layout)
+        print(layout1)
+        print(layout2)
+
+        self.assertEqual((150, 10), layout2.size)
+        self.assertEqual((50, 10), layout1.size)
+        self.assertEqual((0, 0), layout1.topLeft)
+        self.assertEqual((50, 0), layout2.topLeft)
+        self.writeImage(layout, "testPackingBiasHorizontal1_3.png")
 
     def testPackingBiasVertical(self):
 
