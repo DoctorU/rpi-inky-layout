@@ -150,9 +150,7 @@ class Layout:
             )
         self._error = 0.0
         self.children.append(childLayer)
-        print("addLayer", childLayer)
         self._resizeChildren()
-        print("addLayer... added.")
         return childLayer
 
     def resize(self, size):
@@ -197,7 +195,6 @@ class Layout:
             w = w / slotCount
         intW = int(floor(w))  # FIXME this underuses the drawable size
         self._error = self._error + w - intW
-        print("_calcSlotSize:self._error:", self._error)
         return (intW, dw1)
 
     def _getSlotSizeFor(self, child):
@@ -290,35 +287,29 @@ class Layout:
 
     def _resizeChildren(self):
         childCount = self._childCount()
-        print("_resizeChildren:childCount:", childCount)
 
         if childCount > 0:  # only update when there's children present
 
             # calc padding
-            print("_resizeChildren:_paddings")
             self._paddings = [
                 self._calcPadding(i) for i, c in enumerate(self.children[1:])
             ]
             # calculate real spacers
-            print("_resizeChildren:_spacers")
             self._spacers = [
                     self._calcRealSpacerWidth(i) for i, c in
                     enumerate(self.children[1:])
             ]
 
-            print("_resizeChildren:_slots")
             self._slots = [
                 self._getSlotSizeFor(child)
                 for child
                 in self.children
             ]
-            print("_resizeChildren:_topLefts")
             # toplefts depend on slots
             self._topLefts = [
                 self._calcTopLeft(i) for i, c in enumerate(self.children)
             ]
 
-            print("_resizeChildren:_showSparePixels")
             self._showSparePixels()
 
             [
