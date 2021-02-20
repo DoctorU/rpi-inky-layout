@@ -73,6 +73,7 @@ class Layout:
         self.packingBias = packingBias
         self.rotation_degrees = self.rotation.value * 90
         self.topLeft = (0, 0)
+        self.drawBorders = True
         self.packingMode = packingMode
         self.size = size
         if self.rotation.value % 2:
@@ -199,7 +200,6 @@ class Layout:
         _errorWidth = 0
         if self._hasChildren():
             _errorWidth = drawableWidth % self._childCount()
-
         return _errorWidth
 
     def _calcOptimumSpacerWidth(self):
@@ -260,7 +260,11 @@ class Layout:
             border1 - border2
         )
         if _sparePixels > 0:
-            print("!!! SPARE PIXELS:", _sparePixels, self)
+            print(
+                "!!! SPARE PIXELS: {sp} on {s}".format(
+                    sp=_sparePixels, s=self
+                )
+            )
         return _sparePixels
 
     def _resizeChildren(self):
@@ -329,7 +333,7 @@ class Layout:
 
         # draw the border
         draw = ImageDraw.Draw(self._image)
-        if self.borders:
+        if self.drawBorders:
             self._drawBorder(draw)
 
         # return image rotated to the correct orientation
@@ -338,10 +342,30 @@ class Layout:
     def _drawBorder(self, draw):
         w = self.borders[0]
         c = self.borderColour
-        rectSize = tuple(numpy.subtract(self.size, 1))
-        draw.rectangle([(0, 0), rectSize], outline=c, width=w)
+        while w > 0:
+            rectSize = tuple(numpy.subtract(self.size, w))
+            w = w - 1
+            draw.rectangle([(w, w), rectSize], outline=c, width=1)
+
+        def drawSpacer(w, tl):
+            if w > 0:
+                print("Drawing Spacer: ", w, tl, self)
+                if self.packingMode == 'h':
+                    tlxy = [tl[0] - w, tl[1]]
+                    brxy = [tl[0] - 1, self.size[1] - tl[1]]
+                else:
+                    tlxy = [tl[0], tl[1] - w]
+                    brxy = [self.size[0] - tl[0], tl[1] - 1]
+                tlbr = tlxy + brxy
+                print("Drawing Spacer: tlbr:", tlbr)
+                draw.rectangle(tlbr, fill=c, width=1)
+
         if len(self._spacers) > 0:
-            print("TODO: DRAWING SPACERS")
+            [
+                drawSpacer(w, tl)
+                for w, tl
+                in zip([0] + self._spacers, self._topLefts)
+            ]
 
     def _drawChildren(self):
         [child._drawChildren() for child in self.children]
