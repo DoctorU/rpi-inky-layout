@@ -6,12 +6,10 @@ from numpy import floor
 from .rotation import Rotation
 
 
-"""
-    Layout - a simple image layout manager for RPi Inky HATs.
-"""
-
-
 class Layout:
+    """
+        Layout - a simple image layout manager for RPi Inky HATs.
+    """
 
     DEFAULT_PALETTE = (255, 255, 255, 0, 0, 0, 255, 0, 0) + (0, 0, 0) * 252
 
@@ -82,7 +80,6 @@ class Layout:
 
         self.imageMode = imageMode
 
-        print("Border", border)
         if isinstance(border, int):
             self.borders = (border, border, border, border)
             self.borderColour = 2
@@ -155,12 +152,10 @@ class Layout:
         return childLayer
 
     def resize(self, size):
-        print ("--")
         self.size = size
         if self._image:
             self._image = self._image.crop((0, 0) + size)
         self._resizeChildren()
-        print ("resized", self)
 
     def _childCount(self):
         return len(self.children)
@@ -264,16 +259,14 @@ class Layout:
             sumSlots -
             border1 - border2
         )
-        print("spare pixels:", _sparePixels, self)
+        if _sparePixels > 0:
+            print("!!! SPARE PIXELS:", _sparePixels, self)
         return _sparePixels
 
     def _resizeChildren(self):
         childCount = len(self.children)
 
         if childCount > 0:  # only update when there's children present
-
-            # calc overall drawable size
-            size = self._calcDrawableSize()
 
             # calc spacers
             spacerChildren = enumerate(self.children[1:])
@@ -305,17 +298,11 @@ class Layout:
                     index
                 ) for index, child in enumerate(self.children)
             ]
-            breakpoint()
-            print(self)
 
     def _resizeAChild(self, child, index):
 
-        # slots come 'pre-transformed' for v/h
         slotSize = self._slots[index]
         topLeft = self._topLefts[index]
-        bottomRight = tuple(zip(topLeft, slotSize))
-        print("_resizeAChild", self.size, slotSize, topLeft, bottomRight)
-
 
         child.resize(slotSize)
         child.topLeft = topLeft
@@ -366,7 +353,7 @@ class Layout:
 
     def _drawChildOnParent(self, child, index):
         if not child._image:
-            print("WARNING: NO IMAGE SET ON THIS CHILD", child)
+            print("WARNING: NO IMAGE ON THIS CHILD", child)
         else:
             if not self._image:
                 self._image = self.setImage(child._image.copy())

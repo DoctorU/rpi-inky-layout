@@ -3,7 +3,6 @@ from PIL import Image, ImageDraw
 import unittest
 
 from rpi_inky_layout import Layout
-from . import layout_fixtures as fixtures
 
 
 class TestLayoutPackingBias(unittest.TestCase):

@@ -46,7 +46,7 @@ class TestLayoutVerticalBasics(unittest.TestCase):
 
         ]
 
-    def testAddChildrenPackedVWithBorderEnabledTwoLayers(self):
+    def testAddChildrenPackedVWithBorderEnabledThreeLayers(self):
         layout = fixtures.threeLayers((200, 300), packingMode='v', border=1)
         [
             self.assertEqual((198, 98), child.size)
@@ -78,7 +78,6 @@ class TestLayoutVerticalBasics(unittest.TestCase):
             in layout.children
         ]
         self.drawAndWrite(layout, "addChildrenPackedVWiBorder5Layers.png")
-
 
     # FIXME refactor into separate utility package
     def NewImage(self, layout, mode='P', colour=randint(0, 2)):
