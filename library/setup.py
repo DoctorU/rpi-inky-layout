@@ -1,7 +1,7 @@
 from os import path
 import setuptools
 
-VERSION = "v0.1.0"
+VERSION = "v0.2.0"
 DIST_FMT = "https://github.com/DoctorU/rpi-inky-layout/dist/{VERSION}.tar.gz"
 DIST_URL = DIST_FMT.format(VERSION=VERSION)
 
@@ -10,7 +10,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 setuptools.setup(
   name='rpi-inky-layout',
-  version='0.1.0',
+  version='0.2.0',
   license='MIT',
   description="A layout companion library for Pimoroni's Inky HATs",
   long_description=long_description,
