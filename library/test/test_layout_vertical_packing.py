@@ -58,7 +58,7 @@ class TestLayoutVerticalBasics(unittest.TestCase):
     def testAddChildrenPackedVWithBorderEnabledFourLayers(self):
         layout = fixtures.fourLayers((200, 300), packingMode='v', border=1)
         [
-            self.assertEqual((198, 72), child.size)
+            self.assertEqual((198, 73), child.size)
             for child
             in layout.children
 
@@ -67,7 +67,7 @@ class TestLayoutVerticalBasics(unittest.TestCase):
     def testAddChildrenPackedVWithBorderEnableFiveLayers(self):
         layout = fixtures.fiveLayers((200, 300), packingMode='v', border=1)
         [
-            self.assertEqual((198, 56), child.size)
+            self.assertEqual((198, 58), child.size)
             for child
             in layout.children
 

@@ -98,7 +98,7 @@ class TestLayoutBasics(unittest.TestCase):
             in layout.children
         ]
         [
-            self.assertEqual((147, 98), child.size)
+            self.assertEqual((148, 98), child.size)
             for child
             in layout.children
         ]
@@ -111,7 +111,7 @@ class TestLayoutBasics(unittest.TestCase):
             in layout.children
         ]
         [
-            self.assertEqual((116, 98), child.size)
+            self.assertEqual((118, 98), child.size)
             for child
             in layout.children
         ]
@@ -124,7 +124,7 @@ class TestLayoutBasics(unittest.TestCase):
             in layout.children
         ]
         [
-            self.assertEqual((95, 98), child.size)
+            self.assertEqual((98, 98), child.size)
             for child
             in layout.children
         ]
@@ -137,7 +137,7 @@ class TestLayoutBasics(unittest.TestCase):
             in layout.children
         ]
         [
-            self.assertEqual((82, 98), child.size)
+            self.assertEqual((84, 98), child.size)
             for child
             in layout.children
         ]
@@ -149,21 +149,21 @@ class TestLayoutBasics(unittest.TestCase):
             for child
             in layout.children
         ]
-        _7LayerWidth = 68
+        _7LayerWidth = 73
         [
             self.assertEqual((_7LayerWidth, 98), child.size)
             for child
             in layout.children
         ]
         layoutSpacerSum = sum(layout._spacers)
-        self.assertEqual(49, layoutSpacerSum)
+        self.assertEqual(12, layoutSpacerSum)
         layoutSlotSum = sum([x for x, y in layout._slots])
         self.assertEqual(_7LayerWidth * 8, layoutSlotSum)
         layoutBorderSum = layout.borders[1] + layout.borders[3]  # 2`
         self.assertEqual(2, layoutBorderSum)
         expectedWidth = layoutSpacerSum + layoutSlotSum + layoutBorderSum
         # FIXME BROKEN!!
-        self.assertEqual(expectedWidth + 5, layout.size[0])
+        self.assertEqual(expectedWidth + 2, layout.size[0])
         self.drawAndWrite(
                 layout, "testChildrenPackedHWithBorderEnabledEightLayers.png")
 
@@ -185,16 +185,16 @@ class TestLayoutBasics(unittest.TestCase):
         slotsW = sum([slot[0] for slot in layout._slots])
         borderW = layout.borders[1] + layout.borders[3]
         spacersW = sum(layout._spacers)
-        padding = sum(layout._padSpacers)
+        padding = sum(layout._paddings)
 
         self.assertEqual(6, borderW)
-        self.assertEqual(8, spacersW)
+        self.assertEqual(7, spacersW)
         # FIXME - 2 spare things - should be 4
-        self.assertEqual(2, padding)
+        self.assertEqual(1, padding)
         # FIXME - 2 spare things - should be 0
-        self.assertEqual(2, layout.size[0] - slotsW - borderW - spacersW)
+        self.assertEqual(0, layout.size[0] - slotsW - borderW - spacersW)
         [
-            self.assertEqual((128, 94), child.size)
+            self.assertEqual((129, 94), child.size)
             for child
             in layout.children
         ]
@@ -228,27 +228,27 @@ class TestLayoutBasics(unittest.TestCase):
 
     def test_calcSpacerErrorMarginBorder5OneChild(self):
         layout = fixtures.oneLayer((400, 200), border=5)
-        self.assertEqual((400 - 10) % 1, layout._calcSpacerErrorMargin())
+        self.assertEqual((400 - 10) % 1, layout._calcSpacerErrorMargin(1))
 
     def test_calcSpacerErrorMarginBorder5TwoChildren(self):
         layout = fixtures.twoLayers((400, 200), border=5)
-        self.assertEqual((400 - 10) % 2, layout._calcSpacerErrorMargin())
+        self.assertEqual((400 - 10) % 2, layout._calcSpacerErrorMargin(1))
 
     def test_calcSpacerErrorMarginBorder5ThreeChildren(self):
         layout = fixtures.threeLayers((400, 200), border=5)
-        self.assertEqual((400 - 10) % 3, layout._calcSpacerErrorMargin())
+        self.assertEqual((400 - 10) % 3, layout._calcSpacerErrorMargin(1))
 
     def test_calcSpacerErrorMarginBorder3(self):
         layout = Layout((40, 200), border=3)
         layout.addLayer()
         print((40 - 6) % 1)
-        self.assertEqual(0, layout._calcSpacerErrorMargin())
+        self.assertEqual(0, layout._calcSpacerErrorMargin(1))
         layout.addLayer()
         print((40 - 6), (40 - 6) % 2)
-        self.assertEqual(0, layout._calcSpacerErrorMargin())
+        self.assertEqual(0, layout._calcSpacerErrorMargin(1))
         layout.addLayer()
         print((40 - 6), (40 - 6) % 3)
-        self.assertEqual((40 - 6) % 3, layout._calcSpacerErrorMargin())
+        self.assertEqual((40 - 6) % 3, layout._calcSpacerErrorMargin(0))
 
     def test_spacersWidth(self):
         layout = Layout((400, 200), border=1)
@@ -256,7 +256,7 @@ class TestLayoutBasics(unittest.TestCase):
         layout.addLayer()
         self.assertEqual(1, layout._sumSpacersWidth())
         layout.addLayer()
-        self.assertEqual(6, layout._sumSpacersWidth())
+        self.assertEqual(3, layout._sumSpacersWidth())
 
     def test_calcSlotWidthBorder5(self):
         layout = Layout((400, 200), border=5)
