@@ -8,7 +8,7 @@ library/lint:
 	cd library; flake8 . --statistics
 library/test: library/lint
 	mkdir -p library/test/expected-images/
-	cd library; python3 -m unittest discover -s test/ -p "layout_*_test.py"
+	cd library; python3 -m unittest -b -v
 library/build: library/test
 library/README.md: README.md
 	cp README.md library/
