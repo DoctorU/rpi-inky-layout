@@ -349,7 +349,6 @@ class Layout:
 
         def drawSpacer(w, tl):
             if w > 0:
-                print("Drawing Spacer: ", w, tl, self)
                 if self.packingMode == 'h':
                     tlxy = [tl[0] - w, tl[1]]
                     brxy = [tl[0] - 1, self.size[1] - tl[1]]
@@ -357,7 +356,6 @@ class Layout:
                     tlxy = [tl[0], tl[1] - w]
                     brxy = [self.size[0] - tl[0], tl[1] - 1]
                 tlbr = tlxy + brxy
-                print("Drawing Spacer: tlbr:", tlbr)
                 draw.rectangle(tlbr, fill=c, width=1)
 
         if len(self._spacers) > 0:
