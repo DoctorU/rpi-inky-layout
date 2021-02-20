@@ -235,12 +235,12 @@ class Layout:
         if (index > 0):
             spacer = sum(self._spacers[0:index])
         if self.packingMode == 'h':
-            left = spacer + slotDeltas[0]
             top = 0
+            left = spacer + slotDeltas[0]
         elif self.packingMode == 'v':
+            top = spacer + slotDeltas[0]
             left = 0
-            top = spacer + slotDeltas[1]
-        topLeft = (left + topLeftBorders[0], top + topLeftBorders[1])
+        topLeft = (top + topLeftBorders[0], left + topLeftBorders[1])
         # FIXME
         breakpoint()
         return self.transformAsNeeded(topLeft)
@@ -311,6 +311,7 @@ class Layout:
                     index
                 ) for index, child in enumerate(self.children)
             ]
+            breakpoint()
             print(self)
 
     def _resizeAChild(self, child, index):
