@@ -204,29 +204,23 @@ class Layout:
             slotSize = (slotSize[0] * child.packingBias, slotSize[1])
         return self.transformAsNeeded(slotSize)
 
-    def _calcSpacerErrorMargin(self, index):
+    def _calcPadding(self, index):
         """The additional width to put into each spacer, to even things out."""
         drawableWidth, dh = self.transformAsNeeded(self._calcDrawableSize())
         _errorWidth = 0
         if self._hasChildren():
+            _errorWidth = 1
             childCount = self._childCount()
-            _errorWidth = (drawableWidth % childCount)
-            if _errorWidth > 0:
+            if childCount > 1:
+                _errorWidth = (drawableWidth % childCount)
                 _perChildW = _errorWidth / childCount
-                _diff = 1
+                _this = floor(_perChildW * index)
+                _prev = 0
                 if index > 0:
-                    _this = floor(_perChildW * index)
                     _prev = floor(_perChildW * (index - 1))
-                    _diff = _this - _prev
+                _diff = _this - _prev
                 _errorWidth = int(_diff)
         return _errorWidth
-
-    def _calcPadding(self, index):
-        _padding = 0
-        _paddingError = self._calcSpacerErrorMargin(index)
-        # if index <= _totalError:
-        _padding = _paddingError
-        return _padding
 
     def _calcOptimumSpacerWidth(self):
         bt, br, bb, bl = self.borders
@@ -257,9 +251,6 @@ class Layout:
     def _sumSpacersWidth(self):
         """The total width of all the spacers."""
         return sum(self._spacers)
-
-    def _getSpacerWidthFor(self, index):
-        return self._spacers[index]
 
     def _showSparePixels(self):
         if self.packingMode == 'h':
