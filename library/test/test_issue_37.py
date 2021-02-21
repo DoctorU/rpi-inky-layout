@@ -12,9 +12,9 @@ class TestIssue37(unittest.TestCase):
         _attrs = _ratesLayer.addLayer(packingBias=1)
         _rates = _ratesLayer.addLayer(packingBias=3)
 
-        self.assertEqual((30, 124), _attrs.size)
-        self.assertEqual((90, 124), _rates.size)
-        self.assertEqual((122, 124), _time.size)
+        self.assertEqual((30, 125), _attrs.size)
+        self.assertEqual((90, 125), _rates.size)
+        self.assertEqual((122, 125), _time.size)
         self.assertEqual(0, _ratesLayer._showSparePixels())
 
 
