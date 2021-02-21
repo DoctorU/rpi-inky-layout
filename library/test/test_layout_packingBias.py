@@ -35,6 +35,10 @@ class TestLayoutPackingBias(unittest.TestCase):
         self.assertEqual((50, 10), layout2.size)
         self.assertEqual((0, 0), layout1.topLeft)
         self.assertEqual((150, 0), layout2.topLeft)
+
+        self.setImage(layout1, 0xff0000, "layout1")
+        self.setImage(layout2, 0x0088ff, "layout2")
+        self.setImage(layout, 0x000000, "layout")
         self.writeImage(layout, "testPackingBiasHorizontal3_1.png")
 
     def testPackingBiasHorizontal1_3(self):
@@ -52,6 +56,10 @@ class TestLayoutPackingBias(unittest.TestCase):
         self.assertEqual((150, 10), layout2.size)
         self.assertEqual((0, 0), layout1.topLeft)
         self.assertEqual((50, 0), layout2.topLeft)
+
+        self.setImage(layout1, 0xff0000, "layout1")
+        self.setImage(layout2, 0x0088ff, "layout2")
+        self.setImage(layout, 0x000000, "layout")
         self.writeImage(layout, "testPackingBiasHorizontal1_3.png")
 
     def testPackingBiasVertical3_1(self):
@@ -66,6 +74,10 @@ class TestLayoutPackingBias(unittest.TestCase):
         self.assertEqual((10, 50), layout2.size)
         self.assertEqual((0, 0), layout1.topLeft)
         self.assertEqual((0, 150), layout2.topLeft)
+
+        self.setImage(layout1, 0xff0000, "1")
+        self.setImage(layout2, 0x0088ff, "2")
+        self.setImage(layout, 0x000000, "L")
         self.writeImage(layout, "testPackingBiasVertical3_1.png")
 
     def testPackingBiasVertical1_3(self):
@@ -80,6 +92,9 @@ class TestLayoutPackingBias(unittest.TestCase):
         self.assertEqual((10, 150), layout2.size)
         self.assertEqual((0, 0), layout1.topLeft)
         self.assertEqual((0, 50), layout2.topLeft)
+        self.setImage(layout1, 0xff0000, "1")
+        self.setImage(layout2, 0x0088ff, "2")
+        self.setImage(layout, 0x000000, "L")
         self.writeImage(layout, "testPackingBiasVertical1_3.png")
 
     def testWrite(self):
@@ -87,16 +102,17 @@ class TestLayoutPackingBias(unittest.TestCase):
         layout1 = layout.addLayer(packingBias=1)
         layout2 = layout.addLayer(packingBias=3)
 
-        def setImage(layout, colour, text):
-            img = Image.new("RGB", layout.size, colour)
-            draw = ImageDraw.Draw(img)
-            draw.text((0, 0), text)
-            layout.setImage(img)
-
-        setImage(layout1, 0xff0000, "layout1")
-        setImage(layout2, 0x0088ff, "layout2")
-        setImage(layout, 0x000000, "layout")
+        self.setImage(layout1, 0xff0000, "1")
+        self.setImage(layout2, 0x0088ff, "2")
+        self.setImage(layout, 0x000000, "L")
         self.writeImage(layout, "test-packingBias.png")
+
+    @staticmethod
+    def setImage(layout, colour, text):
+        img = Image.new("RGB", layout.size, colour)
+        draw = ImageDraw.Draw(img)
+        draw.text((0, 0), text)
+        layout.setImage(img)
 
 
 if __name__ == '__main__':
