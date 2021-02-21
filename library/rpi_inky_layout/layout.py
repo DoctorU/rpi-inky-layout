@@ -195,10 +195,11 @@ class Layout:
             w = w / slotCount
         intW = int(floor(w))  # FIXME this underuses the drawable size
         self._error = self._error + w - intW
-        return (intW, dw1)
+        slotSize = (intW, dw1)
+        return slotSize
 
     def _getSlotSizeFor(self, child):
-        slotSize = self._calcSlotSize()
+        slotSize = self._slotSize
         if self._moreThanOneChild():
             slotSize = (slotSize[0] * child.packingBias, slotSize[1])
         return self.transformAsNeeded(slotSize)
@@ -240,9 +241,10 @@ class Layout:
         return _optWidth + _padding
 
     def _calcTopLeft(self, index):
-        slotSize0 = self.transformAsNeeded(self._slots[index])[0]
-        slotStart = self._getChildSlotStart(index)
-        slotDelta = slotSize0 * slotStart
+        slotStart = 0
+        if index > 0:
+            slotStart = self._getChildSlotStart(index)  # all previous ones
+        slotDelta = slotStart * self._slotSize[0]
         topLeftBorders = (self.borders[0], self.borders[3])
         spacer = 0  # 0 offset from drawable area, NOT parent area
         if (index > 0):
@@ -300,6 +302,8 @@ class Layout:
                     enumerate(self.children[1:])
             ]
 
+            # calculate all the slots - slotSize needed for slots and topLefts.
+            self._slotSize = self._calcSlotSize()
             self._slots = [
                 self._getSlotSizeFor(child)
                 for child
@@ -329,10 +333,10 @@ class Layout:
 
     def _getChildSlotTotal(self):
         """The total number of slots."""
-        return self.getChildSlotCount(self.children)
+        return self._getChildSlotCount(self.children)
 
     @staticmethod
-    def getChildSlotCount(childrenList):
+    def _getChildSlotCount(childrenList):
         """The count of the slot."""
         packingBias = [child.packingBias for child in childrenList]
         packingCount = sum(packingBias)
@@ -340,7 +344,7 @@ class Layout:
 
     def _getChildSlotStart(self, index):
         """Which slot this child starts in."""
-        return self.getChildSlotCount(self.children[0:index])
+        return self._getChildSlotCount(self.children[0:index])
 
     def draw(self):
         if not self._image:

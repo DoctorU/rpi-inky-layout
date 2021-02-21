@@ -14,12 +14,11 @@ library/README.md: README.md
 	cp README.md library/
 library/LICENSE.txt: LICENSE
 	cp LICENSE library/LICENSE.txt
-
-python-readme: library/README.md
-python-licence: library/LICENSE.txt
+library: library/build library/README.md library/LICENSE.txt
 
 git-pull:
 	git pull --all --prune
+
 release-docs:
 	test -d '$(IMG_EG_SRC)'
 	mkdir -p '$(IMG_EG_DOC)'
@@ -31,6 +30,7 @@ release-docs:
 	cp $(IMG_EG_SRC)/test-rotated-LEFT-add-3-layers.png $(IMG_EG_DOC)/rotation_LEFT.png
 	cp $(IMG_EG_SRC)/test-rotated-DOWN-add-3-layers.png $(IMG_EG_DOC)/rotation_DOWN.png
 	cp $(IMG_EG_SRC)/test-rotated-RIGHT-add-3-layers.png $(IMG_EG_DOC)/rotation_RIGHT.png
+
 release-precheck:
 	echo "VERSION: ${VERSION}"
 	echo "RELEASE_FROM: ${RELEASE_FROM}"
@@ -57,6 +57,7 @@ release-update-setup: release-precheck release-newbuild
 release: library/test release-precheck release-branch release-update-setup
 	git restore "library/test"
 	git commit -m"Release ${VERSION}"
+	# git tag will fail if the tag already exists.
 	git tag "v${VERSION}" -a -m"Release v${VERSION} (`date +'%Y-%m-%d'`)"
 	git push origin "v${VERSION}"
 	git push origin main
@@ -66,7 +67,7 @@ python-clean:
 	-rm -r library/README.md
 	-rm -r library/LICENSE.txt
 	-rm -r library/*.egg-info/
-python-dist: python-readme python-licence
+python-dist: library
 	cd library; python3 setup.py sdist bdist_wheel
 # To get this to work, you had to set up ~/.pypirc with username __token__ and
 # your API token.
