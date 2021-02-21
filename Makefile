@@ -14,7 +14,8 @@ library/README.md: README.md
 	cp README.md library/
 library/LICENSE.txt: LICENSE
 	cp LICENSE library/LICENSE.txt
-library: library/build library/README.md library/LICENSE.txt
+library: library/build
+library/package: library/README.md library/LICENSE.txt
 
 git-pull:
 	git pull --all --prune
@@ -67,7 +68,7 @@ python-clean:
 	-rm -r library/README.md
 	-rm -r library/LICENSE.txt
 	-rm -r library/*.egg-info/
-python-dist: library
+python-dist: library/package
 	cd library; python3 setup.py sdist bdist_wheel
 # To get this to work, you had to set up ~/.pypirc with username __token__ and
 # your API token.
