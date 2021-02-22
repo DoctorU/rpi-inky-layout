@@ -10,7 +10,7 @@ class IndexOrder():
         if count == 1:
             return [0]
         _lowIndexes = [n for n in range(0, int(count / 2))]
-        _highIndexes = [n + count - 1 for n in range (0, int(-count / 2), -1)]
+        _highIndexes = [n + count - 1 for n in range(0, int(-count / 2), -1)]
         _indexes = [0] * (len(_lowIndexes)+len(_highIndexes))
         _indexes[::2] = _lowIndexes
         _indexes[1::2] = _highIndexes
