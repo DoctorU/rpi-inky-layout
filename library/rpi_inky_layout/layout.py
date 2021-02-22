@@ -4,6 +4,7 @@ import numpy
 from numpy import floor
 
 from .rotation import Rotation
+from .index_order import IndexOrder
 
 
 class Layout:
@@ -104,7 +105,7 @@ class Layout:
         self._paddings = []
         self._topLefts = []
         self._slots = []
-        self._error = 0.0
+        self._slotSizeError = 0.0
         self._image = None
         self._depth = depth
         self._id = randint(1024, 8192)
@@ -148,7 +149,6 @@ class Layout:
             packingMode=packingMode,
             rotation=rotation
             )
-        self._error = 0.0
         self.children.append(childLayer)
         self._resizeChildren()
         return childLayer
@@ -177,9 +177,6 @@ class Layout:
         # Remove the borders
         w = w - bl - br
         h = h - bt - bb
-        if self.packingMode == 'h':
-            # Adjust the width to be a round number...
-            h = h
         _calcDrawableSize = (w, h)
         return _calcDrawableSize
 
@@ -194,35 +191,36 @@ class Layout:
         if slotCount > 1:
             w = w / slotCount
         intW = int(floor(w))  # FIXME this underuses the drawable size
-        self._error = self._error + w - intW
+        self._slotSizeError = (w - intW) * slotCount
+        print("SLOT SIZE ERROR:", self._slotSizeError)
         slotSize = (intW, dw1)
         return slotSize
 
     def _getSlotSizeFor(self, child):
+        """get the slot size for this child.
+        Accounts for the packingBias in the slot size.
+        """
         slotSize = self._slotSize
         if self._moreThanOneChild():
             slotSize = (slotSize[0] * child.packingBias, slotSize[1])
         return self.transformAsNeeded(slotSize)
 
-    def _calcPadding(self, index):
+    def _calcPaddings(self):
         """The additional width to put into each spacer, to even things out."""
         drawableWidth, dh = self.transformAsNeeded(self._calcDrawableSize())
-        _errorWidth = 0
-        if self._hasChildren():
-            _errorWidth = 1
-            childCount = self._childCount()
-            if childCount > 1:
-                _errorWidth = (drawableWidth % childCount)
-                _perChildW = _errorWidth / childCount
-                _this = floor(_perChildW * index)
-                _prev = 0
-                if index > 0:
-                    _prev = floor(_perChildW * (index - 1))
-                _diff = _this - _prev
-                _errorWidth = int(_diff)
-        return _errorWidth
+        drawableWidth = float(drawableWidth)
+        _errorWidth = int(floor(self._slotSizeError + 0.49))
+        print("_calcPaddings: _error:", _errorWidth)
+        _paddingCount = self._childCount() - 1
+        _paddings = [0] * _paddingCount
+        _indexes = IndexOrder.alternating(_paddingCount)
+        while _errorWidth > 0:
+            _errorWidth -= 1
+            _index = _errorWidth % _paddingCount
+            _paddings[_indexes[_index]] += 1
+        return _paddings
 
-    def _calcOptimumSpacerWidth(self):
+    def _calcIdealSpacerWidth(self):
         bt, br, bb, bl = self.borders
         if self.packingMode == 'h':
             return bl
@@ -230,7 +228,7 @@ class Layout:
             return bt
 
     def _calcRealSpacerWidth(self, index):
-        _optWidth = self._calcOptimumSpacerWidth()
+        _optWidth = self._calcIdealSpacerWidth()
         _padding = self._paddings[index]
         return _optWidth + _padding
 
@@ -283,14 +281,10 @@ class Layout:
 
         if childCount > 0:  # only update when there's children present
 
-            # calc padding
-            self._paddings = [
-                self._calcPadding(i) for i, c in enumerate(self.children[1:])
-            ]
-            # calculate real spacers
+            # spacers - first pass
             self._spacers = [
-                    self._calcRealSpacerWidth(i) for i, c in
-                    enumerate(self.children[1:])
+                    self._calcIdealSpacerWidth() for c in
+                    range(self._childCount() - 1)
             ]
 
             # calculate all the slots - slotSize needed for slots and topLefts.
@@ -300,13 +294,24 @@ class Layout:
                 for child
                 in self.children
             ]
-            # toplefts depend on slots
+            # outcome: there is slot error!
+            print("_resizeChildren: slotError", self._slotSizeError)
+            # next, calculate padding
+            self._paddings = self._calcPaddings()
+            # add padding to existing spacers
+            __spacers = [
+                x[0] + x[1]
+                for x
+                in zip(self._spacers, self._paddings)
+            ]
+            # and reset the spacers with adjusted values
+            self._spacers = __spacers
+            # finally, toplefts depend on slots and adjusted spacers
             self._topLefts = [
-                self._calcTopLeft(i) for i, c in enumerate(self.children)
+                self._calcTopLeft(i) for i in range(self._childCount())
             ]
 
             self._showSparePixels()
-
             [
                 self._resizeAChild(
                     child,
