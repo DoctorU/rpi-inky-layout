@@ -97,6 +97,18 @@ class TestLayoutPackingBias(unittest.TestCase):
         self.setImage(layout, 0x000000, "L")
         self.writeImage(layout, "testPackingBiasVertical1_3.png")
 
+    def testDeepPackingBias(self):
+        layout = Layout((200, 300), packingMode='v')
+        layout1 = layout.addLayer(packingMode='h')
+        layout2 = layout.addLayer()
+        layout11 = layout1.addLayer(packingBias=1)
+        layout12 = layout1.addLayer(packingBias=3)
+        self.assertEqual((200, 150), layout2.size)
+        self.setImage(layout11, 0xff0000, "Layout 11")
+        self.setImage(layout12, 0x0088ff, "Layout 12")
+        self.setImage(layout2, 0xaa0088, "Layout 2")
+        self.writeImage(layout, "testDeepPackingBias.png")
+
     def testWrite(self):
         layout = Layout((200, 200))
         layout1 = layout.addLayer(packingBias=1)
