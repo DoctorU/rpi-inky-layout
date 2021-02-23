@@ -134,9 +134,9 @@ If you're using the Inky, you can load the image up:
 
 And you're done!
 
-## Advanced Features
+# Advanced Features
 
-### Alternate Packing Mode
+## Alternate Packing Mode
 
 Alternate packing mode is an implicit mechanism.
 You can specify a different `packingMode` in the `addLayer` method:
@@ -145,7 +145,7 @@ You can specify a different `packingMode` in the `addLayer` method:
 
 By default Layouts added using `addLayer` inherit their parent's packing mode.
 
-#### Alternate Packing Mode example
+### Alternate Packing Mode example
 
 
 ![Fig1: Alternate Packing Mode example](/doc/img/examples/alternatePackingMode.png)
@@ -155,7 +155,7 @@ Three Layout layers are illustrated, each with different packing modes.
 The top Layout uses `packingMode='h'`, the left Layout also uses
 `packingMode='h'`, and the right Layout uses `packingMode='v'`._
 
-### Rotation
+## Rotation
 
 If you want to render the Layout in a rotated orientation, you can set the
 Rotation parameter. It takes the values:
@@ -164,7 +164,7 @@ Rotation parameter. It takes the values:
  * RIGHT - rotation by +90 degrees
  * DOWN - rotated 180 degrees (up side down)
 
-#### Rotation examples
+### Rotation examples
 For all the following rotation examples, `packingMode='v'`.
 
 ![Rotation.UP (the default)](/doc/img/examples/rotation_UP.png)
@@ -184,7 +184,7 @@ _Figure 2.3: Rotation.DOWN_
 _Figure 2.4: Rotation.RIGHT_
 
 
-### Packing Bias
+## Packing Bias
 
 When adding a layer, you can specify packing bias:
 
@@ -195,9 +195,21 @@ When adding a layer, you can specify packing bias:
 In this example, `sublayout1` will take up 3/4s of the space (3/(1+3)),
 while `sublayout2` will be left with the remaining 1/4.
 
-#### Packing Bias example
+### Packing Bias example
 
 ![packingBias=3](/doc/img/examples/packingBias.png)
 
 _Figure 3.1: Two layers, the first uses the default `packingBias`,
 the second uses `packingBias=3`._
+
+## Subclass `Layout` and add it as a child
+
+Subclassing the Layout class allows you to create pre-decorated layouts, which
+dynamically re-draw themselves.
+All you have to do is ensure that `Layout.__init__()` is called from your
+subclass's constructor method; and implement the default draw behaviour
+ by overriding the `Layout.draw(self)` method, too.
+ 
+    layout = new Layout()
+    child = new DynamicLayout()  # your subclass, overrides `Layout.draw()`
+    layout.addLayout(child)  # returns child, resized. will be auto-redrawn.

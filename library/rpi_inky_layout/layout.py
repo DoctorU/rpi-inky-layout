@@ -149,9 +149,15 @@ class Layout:
             packingMode=packingMode,
             rotation=rotation
             )
-        self.children.append(childLayer)
+        return self.addLayout(childLayer)
+
+    def addLayout(self, layout):
+        """Add a pre-defined layout and resize it.
+        This enables creating subclasses of Layout that can redraw themselves.
+        """
+        self.children.append(layout)
         self._resizeChildren()
-        return childLayer
+        return layout
 
     def resize(self, size):
         self.size = size
