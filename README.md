@@ -206,10 +206,12 @@ the second uses `packingBias=3`._
 
 Subclassing the Layout class allows you to create pre-decorated layouts, which
 dynamically re-draw themselves.
-All you have to do is ensure that `Layout.__init__()` is called from your
-subclass's constructor method; and implement the default draw behaviour
- by overriding the `Layout.draw(self)` method, too.
- 
+Ensure that `Layout.__init__()` is called from your
+subclass's constructor method. Implement the default draw behaviour
+by overriding the `Layout.drawOverride(self)` method, too. Remember that this
+method is called after resizing, so you should be able to resize the
+information that you display at runtime.
+
     layout = new Layout()
     child = new DynamicLayout()  # your subclass, overrides `Layout.draw()`
     layout.addLayout(child)  # returns child, resized. will be auto-redrawn.

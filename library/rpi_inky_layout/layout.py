@@ -345,10 +345,19 @@ class Layout:
         """Which slot this child starts in."""
         return self._getChildSlotCount(self.children[0:index])
 
+    def drawOverride(self):
+        """Override this method if you want to draw your own component.
+
+        Before this method is called (from the draw(self) method),
+        a new image is created, and the children are drawn.
+        """
+        return
+
     def draw(self):
+        self._drawChildren()
         if not self._image:
             self._image = Image.new(self.imageMode, self.size, self._depth)
-        self._drawChildren()
+        self.drawOverride()
 
         # draw the border
         draw = ImageDraw.Draw(self._image)
@@ -385,7 +394,7 @@ class Layout:
             ]
 
     def _drawChildren(self):
-        [child._drawChildren() for child in self.children]
+        [child.draw() for child in self.children]
         [
             self._drawChildOnParent(child, index)
             for index, child
