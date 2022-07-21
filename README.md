@@ -5,6 +5,8 @@ Pimoroni Inky-pHAT into seperate drawable areas.
 
 You might find other uses for it - let me know if it's handy!
 
+[rpi-inky-layout at the Python Package Index](https://pypi.org/project/rpi-inky-layout/)
+
 ## Repository Status
 
 ![Upload Python Package](https://github.com/DoctorU/rpi-inky-layout/workflows/Upload%20Python%20Package/badge.svg)
